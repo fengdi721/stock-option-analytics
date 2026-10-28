@@ -16,5 +16,6 @@
 | [0012](0012-pure-core-enforcement.md)        | 纯模块与异步副作用自动约束     | Accepted                             |
 | [0013](0013-commit-hooks.md)                 | Husky 暂存文件提交前检查       | Accepted                             |
 | [0014](0014-annual-financial-facts.md)       | 年度财务事实与离线比较         | Accepted                             |
+| [0016](0016-companyfacts-cache.md)           | Company Facts 来源与离线缓存   | Accepted                             |
 
 新增 ADR 使用四位连续编号，包含背景、决定、替代方案、代价和验证。Accepted 表示已采用技术决定，不代表对应产品能力已完成。

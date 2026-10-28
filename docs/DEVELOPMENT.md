@@ -138,3 +138,11 @@
 - 新增 financial-compare 命令（25 MB Company Facts + 2 MB 请求），原始字节 hash/长度与 expectedSourceUrl；已有命令与默认 2 MB 错误协议保留。合成 fixture 与真实 Apple 请求分别存放。更新 README/USAGE/ROADMAP/PROGRESS，明确下一步是 Company Facts 产品化下载缓存，V1 模型与检索仍未实现。
 - 实际验收：Apple 四个提取值与已有 2023/2024 原始 HTML（验证 hash、concept/context/unit/scale/sign）及 Company Facts JSON Pointer 一致；Python Decimal 独立复算差额、增长率及净利率一致。371/364 天差异被显式提示。禁用 fetch 后结果完全相同、networkCalls=0。记录见 FINANCIAL-VALIDATION，原始数据与输出留在忽略目录。
 - 本地完整 check 通过，106 项离线测试，零 warning lint；新增 CLI 行为与失败测试，普通测试不连接 SEC。提交前格式检查与 git diff --check 通过。本轮未推送，未运行远程 CI，不据此声称整个 V1 完成。
+
+## 2026-10-28 · 22 Company Facts 正式获取与离线缓存
+
+- 接入 companyfacts-fetch / companyfacts-validate / financial-compare-cached。复用 SEC 下载策略，新增独立 schema/kind 的公司快照 manifest；磁盘边界抽取为 artifact-store，原 filing cache 接口与格式保持不变。新增 ADR 0016 与纯契约边界检查。
+- financial-compare-cached 使用已验证的同一份 bytes 计算，并输出来源 URL、下载时间、hash/长度；原始离线输入命令保持兼容。缓存默认固定，不自动刷新，损坏不静默联网修补。具体限制与新根目录刷新方式已写入使用文档。
+- 真实空缓存 outputs/companyfacts-acceptance-8WhnBU：首次 1 次请求、cacheHit=false；随后禁用 fetch 做校验/财务比较/再次获取，networkCalls=0、cacheHit=true，结果与先前 Apple 观察一致。新下载时间为 2026-10-28T22:37:48.769Z，字节 hash 不变，证据在该忽略目录 acceptance.json。
+- 本地完整 npm run check 通过，119 项离线测试（新增 13 项），格式、lint、架构与类型检查通过。真实下载独立于普通测试；未推送、未运行本轮远程 CI。
+- 同目录另有 TypeScript 风格配置/排版任务的未提交修改。本提交只包含 Company Facts 功能与必要公共存储抽取，保留并发修改；不把工作区残留改动误报为已提交或干净。

@@ -12,7 +12,9 @@ src/sec/submissions 从下载快照中精确选择 accession
 src/sec/content     纯 HTML 结构检查，不执行页面
 src/sec/integrity   Node crypto 的 hash/字节完整性适配
 src/sec/http        SEC-only 受限下载、超时与退避
-src/sec/cache       文件系统缓存、锁、原子发布与离线复核
+src/sec/artifact-store 有界读写、目录锁、blob 与原子发布
+src/sec/cache       申报 HTML manifest 与离线复核
+src/sec/companyfacts-* 公司事实纯契约、独立缓存与获取编排
 src/sec/retrieval   下载与缓存的应用流程编排
 src/cli/commands    命令分派与文件/环境边界
 src/cli.ts          可执行入口：输出、错误与退出码
@@ -35,3 +37,5 @@ SEC metadata 在 contracts 中独立验证，submissions 只返回有效日期�
 pure-core 自动约束覆盖 domain、shared 和 SEC contracts/content/submissions；ESLint 补充检查常见全局 I/O 与被 void 丢弃的业务 Promise。规则是可执行的开发约束，不是运行时沙箱。响应字节上限由 contracts 的单个常量供 HTTP 和缓存复用。
 
 V1 财务数据流：Company Facts 快照 + 明确期间请求 → 精确选择 accession/期间/单位 → 带 JSON Pointer 的事实 → 整数差额/百分比计算。financial 仅依赖自身、shared 与 SEC 公共 contracts，纯模块 I/O 约束同时适用；不读取 SEC 缓存内部实现。数据提取与计算不依赖 CLI。Company Facts 快照与 V0b HTML 缓存独立，API hash 不冒充原始申报 hash。
+
+Company Facts 获取流：CIK → 完整缓存复核 → 精确 SEC API URL → JSON/公司身份检查 → blob → 原子发布独立 manifest。缓存读取返回同一份已验证 bytes，CLI 交给 financial 计算，SEC 模块不反向依赖 financial。纯模块约束包含 companyfacts-contracts；I/O 模块复用 artifact-store 与 http。缓存无自动刷新，新的根目录代表新的来源快照。

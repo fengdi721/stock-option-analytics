@@ -65,6 +65,11 @@ export function submissionsUrl(value: string): string {
   cik(value);
   return `https://data.sec.gov/submissions/CIK${value}.json`;
 }
+export function companyFactsUrl(value: string): string {
+  cik(value);
+  return `https://data.sec.gov/api/xbrl/companyfacts/CIK${value}.json`;
+}
+
 export function filingUrl(company: string, id: string, document: string): string {
   cik(company);
   accession(id);
@@ -115,7 +120,7 @@ export function parseMetadataPair(input: unknown): [FilingMetadata, FilingMetada
   validatePair(pair);
   return pair;
 }
-function parseArtifact(input: unknown): Artifact {
+export function parseArtifact(input: unknown): Artifact {
   const value = record(input, ['sourceUrl', ...downloadFields]);
   const { sourceUrl, downloadedAt, sha256, byteLength } = value;
   if (typeof sourceUrl !== 'string') {

@@ -4,9 +4,11 @@ import { calculateExpiryPayoff } from '../domain/payoff.ts';
 import { retrieveFilings, validateCache } from '../sec/retrieval.ts';
 import { scenarioFromQuotes } from '../adapters/quotes.ts';
 import { compareAnnualFinancials } from '../financial/comparison.ts';
+import { retrieveCompanyFacts } from '../sec/companyfacts-retrieval.ts';
+import { readCompanyFactsCache } from '../sec/companyfacts-cache.ts';
 
 export const usage =
-  'Usage: node src/cli.ts payoff <scenario.json> | quote-payoff <snapshot.csv> <request.json> | sec-fetch <request.json> <cache-root> | sec-validate <cache-directory> | financial-compare <companyfacts.json> <request.json>';
+  'Usage: node src/cli.ts payoff <scenario.json> | quote-payoff <snapshot.csv> <request.json> | sec-fetch <request.json> <cache-root> | sec-validate <cache-directory> | financial-compare <companyfacts.json> <request.json> | companyfacts-fetch <cik> <cache-root> | companyfacts-validate <cache-directory> | financial-compare-cached <cache-directory> <request.json>';
 function readBytes(path: string, limit = 2_000_000): Buffer {
   const message =
     limit === 2_000_000 ? 'input exceeds 2 MB limit' : `input exceeds ${limit} byte limit`;
@@ -51,6 +53,23 @@ export async function runCommand(args: string[], environment: NodeJS.ProcessEnv)
         byteLength: bytes.length,
         verification: 'local-content-hash-only',
       },
+    };
+  }
+  if (args[0] === 'companyfacts-fetch' && args.length === 3) {
+    return retrieveCompanyFacts(args[1], args[2], { userAgent: environment.SEC_USER_AGENT });
+  }
+  if (args[0] === 'companyfacts-validate' && args.length === 2) {
+    const { manifest } = await readCompanyFactsCache(args[1]);
+    return { valid: true, manifest };
+  }
+  if (args[0] === 'financial-compare-cached' && args.length === 3) {
+    const { bytes, manifest } = await readCompanyFactsCache(args[1]);
+    return {
+      ...compareAnnualFinancials(
+        JSON.parse(new TextDecoder().decode(bytes)) as unknown,
+        readJson(args[2]),
+      ),
+      provenance: { ...manifest.artifact, verification: 'cache-integrity-and-identity' },
     };
   }
   if (args[0] === 'sec-fetch' && args.length === 3) {

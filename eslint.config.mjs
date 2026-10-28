@@ -32,7 +32,7 @@ export default defineConfig([
       'src/domain/**/*.ts',
       'src/shared/**/*.ts',
       'src/financial/**/*.ts',
-      'src/sec/{contracts,content,submissions}.ts',
+      'src/sec/{contracts,content,submissions,companyfacts-contracts}.ts',
     ],
     rules: {
       'no-restricted-globals': [
