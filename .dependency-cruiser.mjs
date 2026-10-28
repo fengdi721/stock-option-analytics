@@ -1,3 +1,5 @@
+const pureModules = '^src/(domain/|shared/|sec/(contracts|content|submissions)\\.ts$)';
+
 export default {
   forbidden: [
     { name: 'no-cycles', severity: 'error', from: {}, to: { circular: true } },
@@ -5,8 +7,8 @@ export default {
     {
       name: 'pure-core',
       severity: 'error',
-      from: { path: '^src/(domain/|shared/|sec/contracts\\.ts$)' },
-      to: { pathNot: '^src/(domain/|shared/|sec/contracts\\.ts$)' },
+      from: { path: pureModules },
+      to: { pathNot: pureModules },
     },
     {
       name: 'shared-independent-of-features',

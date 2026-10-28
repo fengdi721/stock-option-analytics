@@ -25,3 +25,5 @@
 - 不通过大范围 eslint-disable、@ts-ignore 或类型断言规避检查。例外须最小化并写明理由；测试中的故意坏输入用 unknown 类型表达。
 
 当前采用适合本项目的官方推荐规则集，不声称完整遵守 Airbnb 或 Google Style。架构边界见 ARCHITECTURE，工具选择和代价见 ADR 0008。
+
+纯模块包含 domain、shared，以及 SEC contracts/content/submissions。除了依赖图约束，ESLint 还拒绝其中常见的全局网络/环境访问。生产源码不允许用 void 绕过未处理 Promise 规则；需要主动启动后台任务时必须明确失败处理与生命周期。上述静态检查不能代替对反射或间接别名访问的代码审查。

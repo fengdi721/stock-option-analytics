@@ -104,3 +104,10 @@
 - 在本地 refactor/sec-validation-boundaries 分支增量修正：独立 metadata 校验替代临时 manifest，解析返回独立构造的类型值；共享 artifact 大小契约。新增 ADR 0011，保留原有输入输出 schema 与缓存。
 - 验证：完整 npm run check 通过，76 项测试全绿；git diff --check 通过。新增回归针对 metadata 拒绝时机和调用方修改输入，不为排版增加测试。
 - 本轮按用户要求只做本地提交；未推送，不宣称远程 CI 验证本轮代码。下一步补全纯模块自动约束并复核真实 SEC 缓存。
+
+## 2026-10-28 · 16 完整纯模块门禁
+
+- 扩展依赖检查覆盖 SEC content/submissions；纯模块的全局/常见 globalThis 网络与环境访问由 ESLint 约束。生产源码禁止用 void 绕过未处理 Promise 规则，测试注册仍由 node:test 处理。
+- 新增 ADR 0012；贡献规则与架构文档说明静态约束的范围，未引入框架、目录层或依赖升级。
+- 验证：完整 npm run check 通过，76 项测试；五组模块的裸全局/限定全局反例、两种 SEC 纯模块 Node 导入、生产 void Promise 均被拒绝；临时反例已清除，git diff --check 通过。
+- 本轮仍仅本地提交，远程 CI 不代表已验证这些新规则。

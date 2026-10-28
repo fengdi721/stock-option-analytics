@@ -22,6 +22,51 @@ export default defineConfig([
       eqeqeq: ['error', 'always'],
     },
   },
+
+  {
+    files: ['src/**/*.ts'],
+    rules: { '@typescript-eslint/no-floating-promises': ['error', { ignoreVoid: false }] },
+  },
+  {
+    files: [
+      'src/domain/**/*.ts',
+      'src/shared/**/*.ts',
+      'src/sec/{contracts,content,submissions}.ts',
+    ],
+    rules: {
+      'no-restricted-globals': [
+        'error',
+        'fetch',
+        'process',
+        'require',
+        'WebSocket',
+        'XMLHttpRequest',
+      ],
+      'no-restricted-properties': [
+        'error',
+        {
+          object: 'globalThis',
+          property: 'fetch',
+          message: 'Inject network access at the I/O boundary.',
+        },
+        {
+          object: 'globalThis',
+          property: 'process',
+          message: 'Read the environment at the CLI boundary.',
+        },
+        {
+          object: 'globalThis',
+          property: 'WebSocket',
+          message: 'Keep network access outside the pure core.',
+        },
+        {
+          object: 'globalThis',
+          property: 'XMLHttpRequest',
+          message: 'Keep network access outside the pure core.',
+        },
+      ],
+    },
+  },
   prettier,
   {
     files: ['src/**/*.ts', 'test/**/*.ts'],

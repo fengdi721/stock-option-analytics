@@ -28,3 +28,7 @@ outputs/sec/        忽略的本地原始下载内容
 fetch、sleep、clock 支持注入，以测试网络边界且不连接 SEC。磁盘适配在临时目录中验证完整性、竞争与失败恢复，CLI 用子进程验证外部协议。数值结果使用独立手算预期，普通测试不依赖下载缓存。
 
 后续财务指标、检索、模型与 AWS 接入须保持数值计算、外部数据和模型解释分离；技术栈、数据授权与云运行成本变更用 ADR 记录。V0b 的原始网页只作为不可信数据，不执行其中的指令与脚本。
+
+SEC metadata 在 contracts 中独立验证，submissions 只返回有效日期、canonical URL 与两期关系均成立的值。retrieval 不再借用 submissions 的下载字段构造临时 manifest；只有真实下载结果进入完整 manifest。解析器构造独立边界值，避免调用方后续修改输入改变已验证的异步请求。
+
+pure-core 自动约束覆盖 domain、shared 和 SEC contracts/content/submissions；ESLint 补充检查常见全局 I/O 与被 void 丢弃的业务 Promise。规则是可执行的开发约束，不是运行时沙箱。响应字节上限由 contracts 的单个常量供 HTTP 和缓存复用。
