@@ -132,3 +132,9 @@
 - 新增 financial 三个有明确职责的纯模块、ADR 0014，以及自动依赖/I/O 约束。两个显式连续年度期间、固定标准营收/净利润标签；精确来源定位、缺失传播、冲突拒绝、重述 accession 隔离及期间差异提示。金额与比例使用整数运算。
 - 验证：完整 npm run check 通过，103 项离线测试（新增 27 项行为/边界测试），lint 零 warning，依赖检查通过。CLI 接入与真实快照交叉核验将在下一提交完成，不把核心测试写作 V1 全部验收。
 - 本地 SEC Company Facts 快照已单次获取到 outputs/financial，未提交原始数据/联系邮箱；系统 Python 无 HTTPS 支持的首次尝试未发出请求，改用项目 Node 24。仍仅本地提交，不推送。
+
+## 2026-10-28 · 20 V1 离线比较 CLI 与真实来源交叉核验
+
+- 新增 financial-compare 命令（25 MB Company Facts + 2 MB 请求），原始字节 hash/长度与 expectedSourceUrl；已有命令与默认 2 MB 错误协议保留。合成 fixture 与真实 Apple 请求分别存放。更新 README/USAGE/ROADMAP/PROGRESS，明确下一步是 Company Facts 产品化下载缓存，V1 模型与检索仍未实现。
+- 实际验收：Apple 四个提取值与已有 2023/2024 原始 HTML（验证 hash、concept/context/unit/scale/sign）及 Company Facts JSON Pointer 一致；Python Decimal 独立复算差额、增长率及净利率一致。371/364 天差异被显式提示。禁用 fetch 后结果完全相同、networkCalls=0。记录见 FINANCIAL-VALIDATION，原始数据与输出留在忽略目录。
+- 本地完整 check 通过，106 项离线测试，零 warning lint；新增 CLI 行为与失败测试，普通测试不连接 SEC。提交前格式检查与 git diff --check 通过。本轮未推送，未运行远程 CI，不据此声称整个 V1 完成。

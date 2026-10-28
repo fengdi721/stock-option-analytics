@@ -46,3 +46,19 @@ sec-fetch 输出 cacheHit、directory、manifest。第二次执行会完全离�
 每次命中复核所有文件；损坏时返回错误，不自动下载。要重新下载，保留或移动原缓存后使用新的 cache-root。遗留 .lock 仅在确认没有活动下载时移除。不要通过并行运行大量进程绕过 SEC 总请求限制；内置 250 ms 间隔只覆盖单次调用。429 与部分 5xx 做有限退避，长 Retry-After 要求稍后重试；403 不重试。
 
 原始文件在被 Git 忽略的 outputs 中，测试使用合成内容，不连接 SEC。下载内容只作为数据处理，不执行其中脚本，也不从该步骤推定全文再分发权。
+
+## 离线年度财务比较
+
+```sh
+node src/cli.ts financial-compare fixtures/companyfacts.synthetic.json fixtures/financial-request.json
+```
+
+命令接受本地 SEC Company Facts JSON（最多 25 MB）与明确期间请求（最多 2 MB），不联网、不需要 SEC_USER_AGENT。请求字段只有 cik 和 periods，periods 是由旧到新的两个 `{accession, start, end}`；日期必须合法，两个年度期间连续、各为 350–380 天。示例真实请求是 examples/financial-apple-annual.json。财务快照与 V0b 的 HTML 缓存不同，不可将 manifest 或 HTML 当作此命令的输入。
+
+只提取 us-gaap 的 RevenueFromContractWithCustomerExcludingAssessedTax 与 NetIncomeLoss，限定 USD、10-K、精确 accession/start/end；不凭 fy/fp/frame 猜测，不自动选择后续重述。未支持的概念、单位或期间返回 missing 与原因；冲突事实及不安全/非整数金额拒绝。输入值是完整美元，不是页面显示的“百万美元”。输出金额使用整数字符串，与期权命令的两位小数金额格式不同。
+
+输出分为事实（periods 中的 revenue/netIncome）、计算（净利率、差额、百分比变化）与 provenance。每项事实含 Company Facts JSON Pointer、accession 与申报日。percentageDecimals=2，百分比四舍五入到两位（恰半时远离零）；缺失值不补零，旧值非正时不输出百分比变化，营收非正时不输出净利率。不同天数会返回 unequal_period_lengths；不会按天数调整数据。
+
+provenance 保存输入文件的 SHA-256、原始字节长度和 expectedSourceUrl。这个 URL 是根据 CIK 推导的预期 API 地址，**不是来源认证**；文件 hash 也不能证明输入真实。basis=as-filed 只表示指定 accession 的申报口径，不代表已核对最新重述或历史时点可用性。源 JSON 解析后的金额必须为安全整数；尚不支持小数金额及超安全整数的 JSON 数值。
+
+普通测试只用合成事实；真实快照的下载与验收记录见 [FINANCIAL-VALIDATION](FINANCIAL-VALIDATION.md)。Company Facts 自动下载、独立来源 manifest 与缓存流程尚待实现，模型报告与问答也未接入。

@@ -3,14 +3,24 @@ import { createHash } from 'node:crypto';
 import { calculateExpiryPayoff } from '../domain/payoff.ts';
 import { retrieveFilings, validateCache } from '../sec/retrieval.ts';
 import { scenarioFromQuotes } from '../adapters/quotes.ts';
+import { compareAnnualFinancials } from '../financial/comparison.ts';
 
 export const usage =
-  'Usage: node src/cli.ts payoff <scenario.json> | quote-payoff <snapshot.csv> <request.json> | sec-fetch <request.json> <cache-root> | sec-validate <cache-directory>';
-function read(path: string): string {
-  if (statSync(path).size > 2_000_000) {
-    throw new Error('input exceeds 2 MB limit');
+  'Usage: node src/cli.ts payoff <scenario.json> | quote-payoff <snapshot.csv> <request.json> | sec-fetch <request.json> <cache-root> | sec-validate <cache-directory> | financial-compare <companyfacts.json> <request.json>';
+function readBytes(path: string, limit = 2_000_000): Buffer {
+  const message =
+    limit === 2_000_000 ? 'input exceeds 2 MB limit' : `input exceeds ${limit} byte limit`;
+  if (statSync(path).size > limit) {
+    throw new Error(message);
   }
-  return readFileSync(path, 'utf8');
+  const bytes = readFileSync(path);
+  if (bytes.length > limit) {
+    throw new Error(message);
+  }
+  return bytes;
+}
+function read(path: string): string {
+  return readBytes(path).toString('utf8');
 }
 function readJson(path: string): unknown {
   return JSON.parse(read(path)) as unknown;
@@ -25,6 +35,22 @@ export async function runCommand(args: string[], environment: NodeJS.ProcessEnv)
     return {
       ...calculateExpiryPayoff(scenario),
       provenance: { ...provenance, snapshotSha256: createHash('sha256').update(csv).digest('hex') },
+    };
+  }
+  if (args[0] === 'financial-compare' && args.length === 3) {
+    const bytes = readBytes(args[1], 25_000_000);
+    const result = compareAnnualFinancials(
+      JSON.parse(bytes.toString('utf8')) as unknown,
+      readJson(args[2]),
+    );
+    return {
+      ...result,
+      provenance: {
+        expectedSourceUrl: `https://data.sec.gov/api/xbrl/companyfacts/CIK${result.cik}.json`,
+        snapshotSha256: createHash('sha256').update(bytes).digest('hex'),
+        byteLength: bytes.length,
+        verification: 'local-content-hash-only',
+      },
     };
   }
   if (args[0] === 'sec-fetch' && args.length === 3) {

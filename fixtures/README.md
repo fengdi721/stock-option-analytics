@@ -5,3 +5,5 @@
 call-spread.json：买入 100 call 支付 5，卖出 105 call 收入 3，乘数 100，各腿总费用 1.30。净支出 200，费用 2.60。
 
 独立手算预期：标的 90/100 → -202.60；102 → -2.60；105/110 → 297.40。此处为到期损益，不包含提前行权或税费。
+
+companyfacts.synthetic.json 与 financial-request.json 是虚构 CIK/申报数据，仅用于离线财务 CLI 演示。营收 2000/2500 USD、净利润 100/250 USD；字段形状参考 Company Facts，不能冒充真实 SEC 数据。真实 Apple 请求另置 examples/financial-apple-annual.json。
