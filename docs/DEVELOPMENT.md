@@ -64,3 +64,8 @@
 - 复核发现 Array.forEach 会跳过稀疏数组空位，程序调用 parseRequest 时可能把缺失 accession 当作有效请求；JSON 输入无法表达该空位，但导出函数仍须拒绝。
 - 改为逐项校验两个 tuple 位置，新增有明确错误预期的回归，并统一所触及两个文件的格式。
 - 验证：本地完整 npm run check（含准备中的格式/lint/依赖门禁）通过，70 项测试全绿；git diff --check 通过。工具链配置将在后续独立提交。
+
+## 2026-10-28 · 10 统一代码格式
+
+- 独立应用 Prettier 到源码、测试、JSON 示例和 tsconfig；统一大括号、换行与排版，避免和业务变更混在一起。
+- 验证：本地完整 npm run check 通过（格式、零 warning lint、依赖边界、类型、70 项测试）；git diff --check 通过。工具配置与 lockfile 下一提交交付。

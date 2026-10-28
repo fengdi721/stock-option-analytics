@@ -23,16 +23,31 @@ type ContentKind = 'json' | 'html';
 function validateSourceUrl(url: string, kind: ContentKind): void {
   if (kind === 'json') {
     const match = /^https:\/\/data\.sec\.gov\/submissions\/CIK(\d{10})\.json$/.exec(url);
-    if (match && submissionsUrl(match[1]) === url) return;
+    if (match && submissionsUrl(match[1]) === url) {
+      return;
+    }
   } else {
-    const match = /^https:\/\/www\.sec\.gov\/Archives\/edgar\/data\/(\d+)\/(\d{10})(\d{2})(\d{6})\/([A-Za-z0-9_-]+\.html?)$/.exec(url);
-    if (match && filingUrl(match[1].padStart(10, '0'), `${match[2]}-${match[3]}-${match[4]}`, match[5]) === url) return;
+    const match =
+      /^https:\/\/www\.sec\.gov\/Archives\/edgar\/data\/(\d+)\/(\d{10})(\d{2})(\d{6})\/([A-Za-z0-9_-]+\.html?)$/.exec(
+        url,
+      );
+    if (
+      match &&
+      filingUrl(match[1].padStart(10, '0'), `${match[2]}-${match[3]}-${match[4]}`, match[5]) === url
+    ) {
+      return;
+    }
   }
   throw new Error('noncanonical SEC download URL');
 }
 
 function retryDelay(header: string | null, attempt: number, now: Date): number {
-  const requested = header === null ? 0 : /^\d+$/.test(header) ? Number(header) * 1000 : Date.parse(header) - now.getTime();
+  const requested =
+    header === null
+      ? 0
+      : /^\d+$/.test(header)
+        ? Number(header) * 1000
+        : Date.parse(header) - now.getTime();
   if (!Number.isFinite(requested) || requested > MAX_RETRY_DELAY_MS) {
     throw new Error('SEC Retry-After requires a later manual retry');
   }
@@ -44,14 +59,18 @@ async function readResponse(response: Response): Promise<Uint8Array> {
     await response.body?.cancel();
     throw new Error('SEC response exceeds 25 MB');
   }
-  if (!response.body) throw new Error('empty SEC response');
+  if (!response.body) {
+    throw new Error('empty SEC response');
+  }
   const reader = response.body.getReader();
   const chunks: Uint8Array[] = [];
   let length = 0;
   try {
     for (;;) {
       const { done, value } = await reader.read();
-      if (done) break;
+      if (done) {
+        break;
+      }
       length += value.byteLength;
       if (length > MAX_ARTIFACT_BYTES) {
         await reader.cancel();
@@ -62,14 +81,20 @@ async function readResponse(response: Response): Promise<Uint8Array> {
   } finally {
     reader.releaseLock();
   }
-  if (length === 0) throw new Error('empty SEC response');
+  if (length === 0) {
+    throw new Error('empty SEC response');
+  }
   return Buffer.concat(chunks);
 }
 
 export function createDownloader(options: DownloadOptions) {
   const userAgent = options.userAgent;
-  if (!userAgent || userAgent.length > 256 || /[\r\n]/.test(userAgent) ||
-      !/\S+\s+.*[^\s@]+@[^\s@]+\.[^\s@]+/.test(userAgent)) {
+  if (
+    !userAgent ||
+    userAgent.length > 256 ||
+    /[\r\n]/.test(userAgent) ||
+    !/\S+\s+.*[^\s@]+@[^\s@]+\.[^\s@]+/.test(userAgent)
+  ) {
     throw new Error('SEC_USER_AGENT must identify the application and a contact email');
   }
   const fetcher = options.fetch ?? fetch;
@@ -83,7 +108,10 @@ export function createDownloader(options: DownloadOptions) {
       // The caller must coordinate other processes to respect SEC's aggregate limit.
       await sleep(REQUEST_INTERVAL_MS);
       const response = await fetcher(url, {
-        headers: { 'User-Agent': userAgent, Accept: kind === 'json' ? 'application/json' : 'text/html' },
+        headers: {
+          'User-Agent': userAgent,
+          Accept: kind === 'json' ? 'application/json' : 'text/html',
+        },
         redirect: 'error',
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       });
@@ -100,16 +128,24 @@ export function createDownloader(options: DownloadOptions) {
         throw new Error(`SEC HTTP ${response.status}`);
       }
       const contentType = response.headers.get('content-type')?.split(';')[0].trim().toLowerCase();
-      const accepted = kind === 'json' ? ['application/json'] : ['text/html', 'application/xhtml+xml'];
+      const accepted =
+        kind === 'json' ? ['application/json'] : ['text/html', 'application/xhtml+xml'];
       if (!contentType || !accepted.includes(contentType)) {
         await response.body?.cancel();
         throw new Error(`unexpected SEC content type: ${contentType ?? ''}`);
       }
       const bytes = await readResponse(response);
-      if (kind === 'html') validateFilingHtml(bytes);
+      if (kind === 'html') {
+        validateFilingHtml(bytes);
+      }
       return {
         bytes,
-        meta: { sourceUrl: url, downloadedAt: now().toISOString(), sha256: sha256(bytes), byteLength: bytes.length },
+        meta: {
+          sourceUrl: url,
+          downloadedAt: now().toISOString(),
+          sha256: sha256(bytes),
+          byteLength: bytes.length,
+        },
       };
     }
     throw new Error('unreachable retry state');

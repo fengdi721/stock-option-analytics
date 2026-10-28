@@ -20,15 +20,21 @@ export async function hasManifest(directory: string): Promise<boolean> {
     await stat(join(directory, 'manifest.json'));
     return true;
   } catch (error) {
-    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') return false;
+    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
+      return false;
+    }
     throw error;
   }
 }
 
 async function readBounded(path: string, limit = MAX_ARTIFACT_BYTES): Promise<Uint8Array> {
-  if ((await stat(path)).size > limit) throw new Error('cache file exceeds size limit');
+  if ((await stat(path)).size > limit) {
+    throw new Error('cache file exceeds size limit');
+  }
   const bytes = await readFile(path);
-  if (bytes.length > limit) throw new Error('cache file exceeds size limit');
+  if (bytes.length > limit) {
+    throw new Error('cache file exceeds size limit');
+  }
   return bytes;
 }
 
@@ -42,7 +48,11 @@ async function atomicWrite(path: string, bytes: Uint8Array): Promise<void> {
   }
 }
 
-export async function writeArtifact(directory: string, meta: Artifact, bytes: Uint8Array): Promise<void> {
+export async function writeArtifact(
+  directory: string,
+  meta: Artifact,
+  bytes: Uint8Array,
+): Promise<void> {
   verifyBytes(meta, bytes);
   await atomicWrite(join(directory, `${meta.sha256}.blob`), bytes);
 }
@@ -51,7 +61,10 @@ export async function writeArtifact(directory: string, meta: Artifact, bytes: Ui
 export async function publishManifest(directory: string, manifest: Manifest): Promise<void> {
   parseManifest(manifest);
   await verifyArtifacts(directory, manifest);
-  await atomicWrite(join(directory, 'manifest.json'), new TextEncoder().encode(JSON.stringify(manifest, null, 2) + '\n'));
+  await atomicWrite(
+    join(directory, 'manifest.json'),
+    new TextEncoder().encode(JSON.stringify(manifest, null, 2) + '\n'),
+  );
 }
 
 export async function acquireLock(directory: string): Promise<() => Promise<void>> {
@@ -75,8 +88,14 @@ async function verifyArtifacts(directory: string, manifest: Manifest): Promise<v
   const selected = selectFilings(submissions, request);
   for (const [index, filing] of manifest.filings.entries()) {
     const expected = selected[index];
-    if (filing.cik !== expected.cik || filing.accession !== expected.accession || filing.form !== expected.form ||
-        filing.periodEnd !== expected.periodEnd || filing.filedAt !== expected.filedAt || filing.sourceUrl !== expected.sourceUrl) {
+    if (
+      filing.cik !== expected.cik ||
+      filing.accession !== expected.accession ||
+      filing.form !== expected.form ||
+      filing.periodEnd !== expected.periodEnd ||
+      filing.filedAt !== expected.filedAt ||
+      filing.sourceUrl !== expected.sourceUrl
+    ) {
       throw new Error('manifest disagrees with submissions evidence');
     }
     validateFilingHtml(await readArtifact(filing));

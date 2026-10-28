@@ -54,12 +54,13 @@ for (const [label, patch] of Object.entries({
   'URL query': {
     sourceUrl: 'https://www.sec.gov/Archives/edgar/data/1/000000000123000001/annual.htm?x=1',
   },
-}))
+})) {
   void test(`manifest rejects ${label}`, () => {
     const m = syntheticManifest();
     Object.assign(m.filings[0], patch);
     assert.throws(() => parseManifest(m));
   });
+}
 void test('manifest rejects wrong pair, source, and schema', () => {
   for (const change of [
     (m: ReturnType<typeof syntheticManifest>) => {

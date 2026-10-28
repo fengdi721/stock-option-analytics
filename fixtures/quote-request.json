@@ -1,10 +1,28 @@
 {
-  "currency":"USD",
-  "asOf":"2026-10-28T14:31:00Z",
-  "maxQuoteAgeSeconds":60,
-  "legs":[
-    {"symbol":"DEMO","expiration":"2027-01-15","type":"call","side":"long","strike":"100","quantity":1,"multiplier":100,"feesPerContract":"1.30"},
-    {"symbol":"DEMO","expiration":"2027-01-15","type":"call","side":"short","strike":"105","quantity":1,"multiplier":100,"feesPerContract":"1.30"}
+  "currency": "USD",
+  "asOf": "2026-10-28T14:31:00Z",
+  "maxQuoteAgeSeconds": 60,
+  "legs": [
+    {
+      "symbol": "DEMO",
+      "expiration": "2027-01-15",
+      "type": "call",
+      "side": "long",
+      "strike": "100",
+      "quantity": 1,
+      "multiplier": 100,
+      "feesPerContract": "1.30"
+    },
+    {
+      "symbol": "DEMO",
+      "expiration": "2027-01-15",
+      "type": "call",
+      "side": "short",
+      "strike": "105",
+      "quantity": 1,
+      "multiplier": 100,
+      "feesPerContract": "1.30"
+    }
   ],
-  "prices":["90","100","102","105","110"]
+  "prices": ["90", "100", "102", "105", "110"]
 }

@@ -1,7 +1,9 @@
 // Accepted USD amounts are decimal strings. BigInt preserves exact cents.
 export function amount(value: unknown, name = 'amount'): string {
   if (typeof value !== 'string' || !/^(0|[1-9][0-9]{0,8})(\.[0-9]{1,2})?$/.test(value)) {
-    throw new Error(`${name} must be a nonnegative USD decimal string with at most 2 decimals (max 999999999.99)`);
+    throw new Error(
+      `${name} must be a nonnegative USD decimal string with at most 2 decimals (max 999999999.99)`,
+    );
   }
   return value;
 }
