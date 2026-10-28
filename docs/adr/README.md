@@ -14,5 +14,6 @@
 | [0010](0010-public-repository.md)            | 公开前检查与主分支保护         | Accepted                             |
 | [0011](0011-sec-metadata-validation.md)      | 独立 SEC metadata 校验与边界值 | Accepted                             |
 | [0012](0012-pure-core-enforcement.md)        | 纯模块与异步副作用自动约束     | Accepted                             |
+| [0013](0013-commit-hooks.md)                 | Husky 暂存文件提交前检查       | Accepted                             |
 
 新增 ADR 使用四位连续编号，包含背景、决定、替代方案、代价和验证。Accepted 表示已采用技术决定，不代表对应产品能力已完成。

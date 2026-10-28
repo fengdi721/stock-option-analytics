@@ -118,3 +118,10 @@
 - 原缓存离线复核与已提交 manifest 完全一致。本轮另外使用空 outputs/sec-revalidation-XYDWQs，真实首轮 cacheHit=false、3 次请求；两期 10-K hash/长度与原来源记录相同；离线校验成功，再跑 cacheHit=true、0 次请求。证据保存在忽略目录 acceptance.json，未记录联系邮箱。
 - 验证：完整 npm run check 为 76 项通过，lint 零 warning，依赖检查无循环/边界违规；git diff --check 通过。check 运行前后源码/文档及 Git 状态未变化。
 - 这些是本地验证。当前分支未推送、未创建 PR、未运行本轮远程 CI；后续财务指标、历史分片、模型与云能力继续列为计划。
+
+## 2026-10-28 · 18 提交前 lint 与格式检查
+
+- 恢复时工作区干净，无自定义 hooksPath；现有完整 check 基线为 76 项测试通过。按用户要求添加固定开发依赖 Husky 9.1.7 / lint-staged 17.6.0，核对 engines 与 Node 24.20.0 兼容，未修改现有 ESLint 规则。
+- prepare 自动安装 .husky/_，pre-commit 检查暂存 TypeScript/MJS 的 ESLint（零 warning）和受支持文件的 Prettier；不自动修复，隐藏并恢复未暂存的已跟踪修改。CI 跳过 hook 安装，继续完整 check。贡献指南与 ADR 0013 说明使用方式与绕过/范围限制。
+- 实际验证：npm ci 成功触发 prepare，hooksPath=.husky/_；npm ls 无 peer 错误。临时仓库真实提交验证正常通过、lint 错误拒绝、warning 拒绝、格式错误拒绝、带空格文件名、部分暂存与失败状态恢复，无遗留 stash。临时验收脚本 /tmp/stock-hook-acceptance.py 不进入产品源码。
+- 本地完整 npm run check 通过：格式、零 warning lint、架构、类型与 76 项离线测试。未添加业务测试或改变 SEC 行为；本轮只本地提交，未推送，未运行本轮远程 CI。

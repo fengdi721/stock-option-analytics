@@ -4,3 +4,4 @@ outputs/
 data/
 coverage/
 dist/
+.husky/_/
