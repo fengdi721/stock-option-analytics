@@ -84,3 +84,10 @@
 - 配置 PR 到 main、push main 和手动触发，取消同 PR 旧运行；只读权限、安装锁定依赖、完整离线质量门禁与超时。
 - 远程原为空私有仓库。分支保护 API 返回套餐限制 403，无法宣称已强制 required checks；保留私有设置。
 - 新增 ADR 0009；实际远程执行结果以 GitHub Actions 为准。
+
+## 2026-10-28 · 13 首次远程验收
+
+- 已初始化并推送私有 origin/main；首次远程 CI https://github.com/fengdi721/stock-option-analytics/actions/runs/40771479943 全部通过（Quality gate 23 s）。本地完整门禁也已通过，70 项测试。
+- 处理首次运行的 Action Node20 弃用提示：checkout/setup-node 更新 v6 并锁定 GitHub 实际解析的完整 SHA，runner 固定 ubuntu-24.04，避免 ubuntu-latest 系统迁移。
+- 保留 main push 验证及 PR opened/synchronize/reopened 验证；PR 后续提交仍触发检查，功能分支无 PR 的 push 不触发。
+- 分支保护仍因私有仓库套餐返回 403 而未启用；未修改可见性、未订购套餐。PR 事件配置已部署，尚未创建测试 PR。
