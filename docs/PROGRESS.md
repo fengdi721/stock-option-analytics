@@ -17,11 +17,11 @@
 
 - [x] Husky + lint-staged 提交前检查：真实提交验证错误阻断、零 warning、格式与部分暂存恢复；CI 完整门禁保留，见 ADR 0013。
 
-- [x] V1 年度财务核心：Company Facts 精确选值、差额/净利率、缺失与重述边界；完整 check 为 103 项离线测试。CLI 与真实数据交叉核验尚待下一步。
+- [x] V1 年度财务核心：Company Facts 精确选值、差额/净利率、缺失与重述边界；CLI 已接通，完整 check 为 106 项离线测试。Apple 四个事实与原始 HTML/JSON Pointer 一致，差额与百分比经独立复算，零网络重跑通过；见 [财务验收](FINANCIAL-VALIDATION.md)。
 
 ## 后续计划（尚未实现）
 
-1. V1：财务比较 CLI、真实数据交叉核验与 Company Facts 下载/缓存；扩展指标和重述对账。
+1. V1：Company Facts 产品化下载、来源 manifest 与缓存；扩展指标和重述对账。
 2. V1：财报检索与 Bedrock、固定问答评测、来源引用验证与缺失拒答。
 3. 如需求出现，再扩展历史 submissions、修订件与缓存刷新策略，先记录 ADR。
 4. UI、AWS 部署与预算/IaC/清理规则，待专门设计与授权。
