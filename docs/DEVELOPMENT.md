@@ -78,3 +78,9 @@
 - 验证：npm ci --offline --no-audit 根据 lockfile 从本地缓存重装成功；随后完整 npm run check 通过，70 项测试全绿，19 个模块/32 条依赖无违规；git diff --check 通过。npm ls --depth=0 无 peer 错误。此前安装时 npm audit 报告 0 vulnerabilities，不等于全面安全审计。
 - 规则反例实测：临时构造纯领域导入 node:fs、依赖循环、不安全 JSON.parse 赋值、未处理 Promise，门禁分别拒绝；反例文件已清除。确认 curly=all 最终生效，避免被 prettier 冲突配置覆盖。
 - 实际完成 V0b 与工程基线的本地验收。仍未推送或获得远程 CI 结果；财务指标、检索、Bedrock 与云部署继续列为未实现计划。
+
+## 2026-10-28 · 12 远程 CI
+
+- 配置 PR 到 main、push main 和手动触发，取消同 PR 旧运行；只读权限、安装锁定依赖、完整离线质量门禁与超时。
+- 远程原为空私有仓库。分支保护 API 返回套餐限制 403，无法宣称已强制 required checks；保留私有设置。
+- 新增 ADR 0009；实际远程执行结果以 GitHub Actions 为准。
