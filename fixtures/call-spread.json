@@ -1,0 +1,8 @@
+{
+  "currency": "USD",
+  "legs": [
+    {"symbol":"DEMO","expiration":"2027-01-15","type":"call","side":"long","strike":"100","premium":"5","quantity":1,"multiplier":100,"feesPerContract":"1.30"},
+    {"symbol":"DEMO","expiration":"2027-01-15","type":"call","side":"short","strike":"105","premium":"3","quantity":1,"multiplier":100,"feesPerContract":"1.30"}
+  ],
+  "prices": ["90", "100", "102", "105", "110"]
+}
