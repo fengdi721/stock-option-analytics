@@ -1,0 +1,30 @@
+# 需求与路线
+
+目标用户：假设的个人研究人员及小型投研团队。业务目标：减少查财报、核对来源和制作期权情景表的重复操作；不以预测收益或荐股胜率验收。
+
+## 用户故事
+
+1. 输入明确的持仓、成交权利金、手续费及标的到期价格，得到可手算复核的逐腿与组合损益。
+2. 导入带时间戳的报价快照，明确选择买价/卖价假设并拒绝非法报价。
+3. 后续比较一家公司两期公开财报，区分原文事实、程序计算和模型解释，附可追溯引用。
+
+## 里程碑
+
+| 阶段 | 范围 | 验收 |
+|---|---|---|
+| V0a 当前 | TypeScript 计算核心、合成 CSV、CLI、测试、ADR | 价差手算结果一致，坏输入被拒绝，文档可复现 |
+| V0b | 两期真实 SEC 财报及来源 manifest、hash、离线缓存 | 来源与时点可追溯，重跑不重复下载 |
+| V1 | 财报检索、指标与 Bedrock 报告 | 引用验证、缺失拒答、固定评测集 |
+| V2 | AWS 身份、私有存储、队列、IaC、日志与回滚 | 部署/清理/故障恢复记录 |
+| V3 | 更多期权情景与评测门禁 | 权限、过期数据、注入与数值测试 |
+| V4 | 单策略历史回测、留出样本和客户交接 | 数据版本、成本模型、可重复结果 |
+
+按原认证计划每周 10–12 小时，其中项目实践约 4 小时。V0a 开始实施不意味着 V0b 或整个项目已完成。
+
+## 当前计算范围
+
+USD、非负价格、最多两位小数、明确的整数合约乘数。只支持同一标的和同一到期日的普通 call/put 组合；每个 leg 的手续费是每份合约分摊的总费用。不模拟提前行权、指派、保证金、分红、税费或调整合约交割。到期损益不是到期前市值，也不是收益率或历史回测。
+
+## 来源
+
+设计参考而非复制代码：[AWS 金融 agent](https://github.com/aws-samples/sample-agentic-frameworks-on-aws/tree/main/langchain/financial-agent)、[AWS 金融多 agent](https://github.com/aws-samples/financial-analysis-multi-agent-collaboration)。财报计划使用 [SEC 数据 API](https://www.sec.gov/search-filings/edgar-application-programming-interfaces)。更详细调研保留在原 cloud-ai-certif 项目的 AWS/portfolio/market-research。
