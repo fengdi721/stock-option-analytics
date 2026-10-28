@@ -10,7 +10,7 @@
 - 明确请求：examples/financial-apple-annual.json。使用 2023/2024 原始 10-K accession，不自动取最新值。
 - 原始 HTML 来源：[2023 10-K](https://www.sec.gov/Archives/edgar/data/320193/000032019323000106/aapl-20230930.htm)、[2024 10-K](https://www.sec.gov/Archives/edgar/data/320193/000032019324000123/aapl-20240928.htm)。对应本地字节 hash 见 [SEC 验收](SEC-VALIDATION.md)。
 
-API 会随新披露更新；重新下载可能得到不同 hash/数组索引。这里只确认本次保存快照。下载动作是开发验收，不是已实现的 Company Facts 下载/缓存产品接口；未保存联系邮箱。
+API 会随新披露更新；重新下载可能得到不同 hash/数组索引。这里只确认本次保存快照。本段下载动作是早期开发验收；后续正式下载/缓存产品接口验收记录在文末，两个下载时间不混用。未保存联系邮箱。
 
 ## 实际结果
 
@@ -45,3 +45,17 @@ npm run check
 ```
 
 新克隆不包含真实原文，可直接使用 README 中的合成示例运行。公开仓库只保留请求、来源和派生数值，不提交整份 Company Facts 快照。缺概念/币种不回退到其他标签；自定义 taxonomy、分部、季度、短过渡期、重述协调、历史时点数据和模型问答仍未实现。
+
+## 正式下载与缓存增量验收
+
+在空根目录 outputs/companyfacts-acceptance-8WhnBU 使用 retrieveCompanyFacts 获取同一 Apple 公司快照。结果：首次 cacheHit=false、1 次 HTTP 请求，downloadedAt=2026-10-28T22:37:48.769Z；byteLength 与 SHA-256 均与上文初次快照一致，但独立 manifest 保留此次真实获取时间。
+
+随后把 fetch 替换为计数后抛错函数，在不提供 User-Agent 的情况下通过 runCommand 执行 companyfacts-validate、financial-compare-cached、companyfacts-fetch：验证成功，期间与计算结果与上文完全一致，再次获取 cacheHit=true，offlineRequests=0。记录保存在该根目录 acceptance.json，包含两次获取结果、离线验证结果和派生报告。原文与联系信息不进入 Git。
+
+```sh
+node src/cli.ts companyfacts-validate outputs/companyfacts-acceptance-8WhnBU/companyfacts/0000320193
+node src/cli.ts financial-compare-cached outputs/companyfacts-acceptance-8WhnBU/companyfacts/0000320193 examples/financial-apple-annual.json
+node src/cli.ts companyfacts-fetch 0000320193 outputs/companyfacts-acceptance-8WhnBU
+```
+
+本轮完整 check 为 119 项离线测试；13 项新测试覆盖公司快照获取、缓存与 CLI 集成。仍未运行本轮远程 CI，未实现自动刷新、重述对账、更多指标或模型报告。

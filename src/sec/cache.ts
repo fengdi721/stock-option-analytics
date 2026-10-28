@@ -1,59 +1,18 @@
-import { mkdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
-import { randomUUID } from 'node:crypto';
 import { join } from 'node:path';
-import { MAX_ARTIFACT_BYTES, parseManifest, parseRequest } from './contracts.ts';
+import { parseManifest, parseRequest } from './contracts.ts';
 import type { Artifact, FilingRequest, Manifest } from './contracts.ts';
 import { verifyBytes } from './integrity.ts';
 import { validateFilingHtml } from './content.ts';
 import { selectFilings } from './submissions.ts';
+import { readBounded, atomicWrite } from './artifact-store.ts';
+
+export { acquireLock, hasManifest, writeArtifact } from './artifact-store.ts';
 
 const MAX_MANIFEST_BYTES = 100_000;
 
 export function cacheDirectory(root: string, input: unknown): string {
   const request = parseRequest(input);
   return join(root, request.cik, [...request.accessions].sort().join('_'));
-}
-
-export async function hasManifest(directory: string): Promise<boolean> {
-  try {
-    await stat(join(directory, 'manifest.json'));
-    return true;
-  } catch (error) {
-    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
-      return false;
-    }
-    throw error;
-  }
-}
-
-async function readBounded(path: string, limit = MAX_ARTIFACT_BYTES): Promise<Uint8Array> {
-  if ((await stat(path)).size > limit) {
-    throw new Error('cache file exceeds size limit');
-  }
-  const bytes = await readFile(path);
-  if (bytes.length > limit) {
-    throw new Error('cache file exceeds size limit');
-  }
-  return bytes;
-}
-
-async function atomicWrite(path: string, bytes: Uint8Array): Promise<void> {
-  const temporary = `${path}.${randomUUID()}.tmp`;
-  try {
-    await writeFile(temporary, bytes, { flag: 'wx' });
-    await rename(temporary, path);
-  } finally {
-    await rm(temporary, { force: true });
-  }
-}
-
-export async function writeArtifact(
-  directory: string,
-  meta: Artifact,
-  bytes: Uint8Array,
-): Promise<void> {
-  verifyBytes(meta, bytes);
-  await atomicWrite(join(directory, `${meta.sha256}.blob`), bytes);
 }
 
 /** Publish only after all blobs exist and agree with the selected metadata. */
@@ -64,13 +23,6 @@ export async function publishManifest(directory: string, manifest: Manifest): Pr
     join(directory, 'manifest.json'),
     new TextEncoder().encode(JSON.stringify(manifest, null, 2) + '\n'),
   );
-}
-
-export async function acquireLock(directory: string): Promise<() => Promise<void>> {
-  await mkdir(directory, { recursive: true });
-  const lock = join(directory, '.lock');
-  await mkdir(lock);
-  return () => rm(lock, { recursive: true, force: true });
 }
 
 async function verifyArtifacts(directory: string, manifest: Manifest): Promise<void> {

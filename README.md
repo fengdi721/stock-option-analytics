@@ -34,4 +34,4 @@ node src/cli.ts financial-compare fixtures/companyfacts.synthetic.json fixtures/
 
 SEC 首次下载、User-Agent 和离线复用见 [输入与运行说明](docs/USAGE.md#sec-两期财报)。真实下载文件位于忽略的 outputs/sec；仓库只保存来源 metadata。
 
-财务示例同样为合成数据：营收 2000 → 2500 USD（+25.00%），净利润 100 → 250 USD（+150.00%），净利率 5.00% → 10.00%。真实 Apple 两期结果和独立交叉核验见财务验收记录；当前财务命令仅导入本地 Company Facts 快照，不自动下载。
+财务示例同样为合成数据：营收 2000 → 2500 USD（+25.00%），净利润 100 → 250 USD（+150.00%），净利率 5.00% → 10.00%。真实 Apple 两期结果和独立交叉核验见财务验收记录；financial-compare 导入裸快照；正式下载与完整性缓存使用 companyfacts-fetch，之后用 financial-compare-cached 计算，命令见 USAGE。

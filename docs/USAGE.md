@@ -61,4 +61,21 @@ node src/cli.ts financial-compare fixtures/companyfacts.synthetic.json fixtures/
 
 provenance 保存输入文件的 SHA-256、原始字节长度和 expectedSourceUrl。这个 URL 是根据 CIK 推导的预期 API 地址，**不是来源认证**；文件 hash 也不能证明输入真实。basis=as-filed 只表示指定 accession 的申报口径，不代表已核对最新重述或历史时点可用性。源 JSON 解析后的金额必须为安全整数；尚不支持小数金额及超安全整数的 JSON 数值。
 
-普通测试只用合成事实；真实快照的下载与验收记录见 [FINANCIAL-VALIDATION](FINANCIAL-VALIDATION.md)。Company Facts 自动下载、独立来源 manifest 与缓存流程尚待实现，模型报告与问答也未接入。
+普通测试只用合成事实；真实快照的下载与验收记录见 [FINANCIAL-VALIDATION](FINANCIAL-VALIDATION.md)。Company Facts 正式获取与缓存见下一节；模型报告与问答尚未接入。
+
+## Company Facts 获取与缓存比较
+
+首次下载前使用上一节 SEC 示例的本地 SEC_USER_AGENT；成功缓存后不再需要身份信息：
+
+```sh
+node src/cli.ts companyfacts-fetch 0000320193 outputs/sec
+node src/cli.ts companyfacts-validate outputs/sec/companyfacts/0000320193
+node src/cli.ts financial-compare-cached outputs/sec/companyfacts/0000320193 examples/financial-apple-annual.json
+node src/cli.ts companyfacts-fetch 0000320193 outputs/sec
+```
+
+fetch 输出 cacheHit、directory、manifest。首次命中前仅获取一份公司级 Company Facts JSON，使用与 SEC filing 获取相同的 HTTP 限制；重复调用完整离线验证后返回 cacheHit=true，不刷新来源。该目录与 `<root>/<cik>/<accession-pair>` 下的 HTML 缓存分开。
+
+manifest 的 kind 为 sec-companyfacts，artifact 保存 URL、下载 UTC 时间、原始 hash 和字节长度。validate 只读取本地文件，输出 `{valid:true, manifest}`；缓存坏/缺文件、manifest 不合法或公司不符会失败，既不输出成功，也不静默重下载。需要新的快照时使用新根目录，例如 outputs/sec-next-snapshot，保留旧目录。异常终止后的 .lock 只应在确认没有活动写入者后人工清理。
+
+financial-compare-cached 对加载时已经验证的同一份原始字节计算，provenance 增加真实下载 metadata，verification=cache-integrity-and-identity。它验证本地一致性和公司身份，不保证本地文件无法被伪造；下载时间不是原始披露/市场可用时间。来源缓存仅检查 JSON/CIK/facts 基本结构，不代表所有财务事实都有效；提取器仍按具体请求验证金额、期间、单位与冲突。

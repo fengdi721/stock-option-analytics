@@ -1,4 +1,5 @@
-const pureModules = '^src/(domain/|shared/|financial/|sec/(contracts|content|submissions)\\.ts$)';
+const pureModules =
+  '^src/(domain/|shared/|financial/|sec/(contracts|content|submissions|companyfacts-contracts)\\.ts$)';
 
 export default {
   forbidden: [

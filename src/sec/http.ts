@@ -1,5 +1,5 @@
 import { setTimeout as delay } from 'node:timers/promises';
-import { MAX_ARTIFACT_BYTES, filingUrl, submissionsUrl } from './contracts.ts';
+import { MAX_ARTIFACT_BYTES, filingUrl, submissionsUrl, companyFactsUrl } from './contracts.ts';
 import type { Artifact } from './contracts.ts';
 import { sha256 } from './integrity.ts';
 import { validateFilingHtml } from './content.ts';
@@ -24,6 +24,11 @@ function validateSourceUrl(url: string, kind: ContentKind): void {
   if (kind === 'json') {
     const match = /^https:\/\/data\.sec\.gov\/submissions\/CIK(\d{10})\.json$/.exec(url);
     if (match && submissionsUrl(match[1]) === url) {
+      return;
+    }
+    const factsMatch =
+      /^https:\/\/data\.sec\.gov\/api\/xbrl\/companyfacts\/CIK(\d{10})\.json$/.exec(url);
+    if (factsMatch && companyFactsUrl(factsMatch[1]) === url) {
       return;
     }
   } else {
