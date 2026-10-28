@@ -14,6 +14,16 @@
 
 当前编译器 TypeScript 6.0.3 是为匹配 typescript-eslint 的支持范围选定，见 ADR 0008。升级任何一方先核对 peerDependencies、运行完整检查并提交 lockfile。禁止用 --force、--legacy-peer-deps 或全局安装掩盖不兼容。
 
+## 提交前检查
+
+首次克隆或更新依赖后运行 `npm ci`，其 `prepare` 自动安装 Husky hook；现有依赖可用 `npm run prepare` 重新启用。需要完整开发依赖与 Node 24，Git GUI 也必须能从 PATH 找到 Node/npm。仓库的 `core.hooksPath` 应为 `.husky/_`，只版本管理 `.husky/pre-commit`，不提交生成的包装脚本。
+
+每次 `git commit` 的 pre-commit 调用 `npm run lint:staged`：对暂存的 TypeScript/MJS 执行 ESLint（零 warning），对暂存的受支持文件执行 Prettier 检查。检查失败会阻止提交，不执行自动修复；先用 `npm run lint:fix` / `npm run format` 修复并检查 diff，再重新暂存。
+
+lint-staged 临时隐藏未暂存的已跟踪文件修改，检查后恢复，并保留默认备份/失败回滚；部分暂存时检查准备提交的内容。未跟踪文件不隐藏。不要同时运行多个 Git 写入操作。需要复查时可手动执行 `npm run lint:staged`。
+
+此 hook 是快速反馈，只检查匹配的暂存文件，不能替代全项目验证，尤其配置/类型/依赖变化可能影响未修改的代码。提交前仍按约定运行 `npm run check` 和 `git diff --check`。CI 设置 `HUSKY=0` 跳过本地 hook 安装，但仍用 `npm ci` 与完整 `npm run check` 验证。Git hook 可被 `--no-verify` 或 `HUSKY=0` 绕过，最终合入要求以 PR 必需检查为准，不以本地 hook 作为安全边界。
+
 ## 可执行编码约定
 
 - Prettier 管格式：两空格、单引号、目标行宽 100、LF；不手工维护与其冲突的风格规则。

@@ -15,7 +15,9 @@
     "lint:fix": "eslint . --fix --max-warnings 0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "architecture:check": "depcruise --config .dependency-cruiser.mjs src --output-type err"
+    "architecture:check": "depcruise --config .dependency-cruiser.mjs src --output-type err",
+    "prepare": "husky",
+    "lint:staged": "lint-staged --hide-unstaged"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
@@ -23,8 +25,14 @@
     "dependency-cruiser": "18.7.0",
     "eslint": "10.13.0",
     "eslint-config-prettier": "10.1.8",
+    "husky": "9.1.7",
+    "lint-staged": "17.6.0",
     "prettier": "3.9.10",
     "typescript": "6.0.3",
     "typescript-eslint": "8.72.1"
+  },
+  "lint-staged": {
+    "*.{ts,mjs}": "eslint --max-warnings 0",
+    "*": "prettier --check --ignore-unknown"
   }
 }
