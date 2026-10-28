@@ -1,10 +1,6 @@
-import { filingUrl } from './contracts.ts';
-import type { Filing, FilingRequest } from './contracts.ts';
-
-export type FilingMetadata = Pick<
-  Filing,
-  'cik' | 'accession' | 'form' | 'periodEnd' | 'filedAt' | 'sourceUrl'
->;
+import { filingUrl, parseMetadataPair, parseRequest } from './contracts.ts';
+import type { FilingMetadata, FilingRequest } from './contracts.ts';
+export type { FilingMetadata } from './contracts.ts';
 
 function object(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
@@ -18,6 +14,7 @@ export function selectFilings(
   bytes: Uint8Array,
   request: FilingRequest,
 ): [FilingMetadata, FilingMetadata] {
+  request = parseRequest(request);
   const doc = object(JSON.parse(new TextDecoder().decode(bytes)) as unknown);
   if (
     (typeof doc.cik !== 'string' && typeof doc.cik !== 'number') ||
@@ -63,5 +60,5 @@ export function selectFilings(
       sourceUrl: filingUrl(request.cik, id, value('primaryDocument')),
     };
   };
-  return [select(request.accessions[0]), select(request.accessions[1])];
+  return parseMetadataPair([select(request.accessions[0]), select(request.accessions[1])]);
 }

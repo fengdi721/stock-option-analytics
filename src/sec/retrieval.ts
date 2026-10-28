@@ -57,12 +57,6 @@ export async function retrieveFilings(
     }
     const submissions = await download(submissionsUrl(request.cik), 'json');
     const selected = selectFilings(submissions.bytes, request);
-    // Validate all metadata before any document downloads.
-    parseManifest({
-      schemaVersion: 1,
-      submissions: submissions.meta,
-      filings: selected.map((filing) => ({ ...submissions.meta, ...filing })),
-    });
     const filings = [];
     for (const filing of selected) {
       const downloaded = await download(filing.sourceUrl, 'html');
