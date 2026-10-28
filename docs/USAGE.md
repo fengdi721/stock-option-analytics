@@ -79,3 +79,20 @@ fetch 输出 cacheHit、directory、manifest。首次命中前仅获取一份公
 manifest 的 kind 为 sec-companyfacts，artifact 保存 URL、下载 UTC 时间、原始 hash 和字节长度。validate 只读取本地文件，输出 `{valid:true, manifest}`；缓存坏/缺文件、manifest 不合法或公司不符会失败，既不输出成功，也不静默重下载。需要新的快照时使用新根目录，例如 outputs/sec-next-snapshot，保留旧目录。异常终止后的 .lock 只应在确认没有活动写入者后人工清理。
 
 financial-compare-cached 对加载时已经验证的同一份原始字节计算，provenance 增加真实下载 metadata，verification=cache-integrity-and-identity。它验证本地一致性和公司身份，不保证本地文件无法被伪造；下载时间不是原始披露/市场可用时间。来源缓存仅检查 JSON/CIK/facts 基本结构，不代表所有财务事实都有效；提取器仍按具体请求验证金额、期间、单位与冲突。
+
+## 同期间披露对账
+
+```sh
+node src/cli.ts financial-reconcile fixtures/reconciliation.synthetic.json fixtures/reconciliation-request.json
+node src/cli.ts financial-reconcile-cached outputs/sec/companyfacts/0000320193 examples/financial-apple-reconciliation.json
+```
+
+第二条命令需要先有已验证的 Company Facts 缓存。它与 financial-compare 的不同在于：比较的是**同一年度期间在两份明确申报中的披露值**，不是两个不同年度。
+
+请求字段：cik（十位字符串）、period（仅 start/end）、filings（两个 `{accession, form}`，按原始/后披露排列）。首份必须是 10-K，后份可为 10-K 或显式 10-K/A；accession 必须不同，period 仍限定 350–380 天。详见两个请求示例；旧年度比较命令仍不自动接受修订件。
+
+输出 basis=same-period-explicit-filings，metrics 的 revenue/netIncome 各自包含 original、later 和双方 citations。status 为 changed 或 unchanged 时，differenceUsd 是后值减原值的完整 USD 整数字符串；缺一方时为 unavailable/missing_fact，保留缺失原因但不输出差额。单位、精度、重复冲突与概念选择规则与已有提取器一致，不转换币种或猜测替代标签。
+
+chronology 取 ordered-by-filing-date、same-day-order-unverified 或 unavailable。日期来自所选事实，单份申报内日期冲突、后申报日早于原申报日均拒绝；同日不推断日内顺序，完全缺失时 filedAt=null。该日期不是精确市场可用时点。
+
+interpretation=numeric-disclosure-comparison-only 限制结果含义：差异不能单独证明正式重述，数值相同也不排除其他指标或披露内容变化。裸文件/缓存两种命令沿用原有 provenance 与零网络运行方式，退出码和 stderr JSON 协议不变。

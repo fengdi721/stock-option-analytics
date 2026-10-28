@@ -1,6 +1,6 @@
 import { boundedInteger, object } from '../shared/validation.ts';
 import { date } from '../sec/contracts.ts';
-import { parseComparisonRequest } from './contracts.ts';
+import { parseComparisonRequest, parseReconciliationRequest } from './contracts.ts';
 import type { AnnualFacts, AnnualPeriod, ReportedFact } from './contracts.ts';
 
 const concepts = {
@@ -12,6 +12,7 @@ function selectFact(
   taxonomy: Record<string, unknown>,
   concept: string,
   period: AnnualPeriod,
+  form: '10-K' | '10-K/A' = '10-K',
 ): ReportedFact {
   if (!Object.hasOwn(taxonomy, concept)) {
     return { status: 'missing', reason: 'concept_missing' };
@@ -31,7 +32,7 @@ function selectFact(
       fact.accn !== period.accession ||
       fact.start !== period.start ||
       fact.end !== period.end ||
-      fact.form !== '10-K'
+      fact.form !== form
     ) {
       continue;
     }
@@ -56,15 +57,19 @@ function selectFact(
   return selected ?? { status: 'missing', reason: 'period_not_found' };
 }
 
-/** Select exact filing/period facts, never the latest observation of an old period. */
-export function extractAnnualFacts(snapshot: unknown, input: unknown) {
-  const request = parseComparisonRequest(input);
+function readTaxonomy(snapshot: unknown, cik: string): Record<string, unknown> {
   const root = object(snapshot, 'companyfacts');
-  if (root.cik !== Number(request.cik)) {
+  if (root.cik !== Number(cik)) {
     throw new Error('companyfacts CIK does not match request');
   }
   const facts = object(root.facts, 'companyfacts.facts');
-  const taxonomy = Object.hasOwn(facts, 'us-gaap') ? object(facts['us-gaap'], 'us-gaap') : {};
+  return Object.hasOwn(facts, 'us-gaap') ? object(facts['us-gaap'], 'us-gaap') : {};
+}
+
+/** Select exact filing/period facts, never the latest observation of an old period. */
+export function extractAnnualFacts(snapshot: unknown, input: unknown) {
+  const request = parseComparisonRequest(input);
+  const taxonomy = readTaxonomy(snapshot, request.cik);
   const extract = (period: AnnualPeriod): AnnualFacts => ({
     period,
     revenue: selectFact(taxonomy, concepts.revenue, period),
@@ -75,4 +80,24 @@ export function extractAnnualFacts(snapshot: unknown, input: unknown) {
     extract(request.periods[1]),
   ];
   return { cik: request.cik, periods };
+}
+
+export function extractReconciliationFacts(snapshot: unknown, input: unknown) {
+  const request = parseReconciliationRequest(input);
+  const taxonomy = readTaxonomy(snapshot, request.cik);
+
+  const extract = (filing: (typeof request.filings)[number]): AnnualFacts => {
+    const period = { ...request.period, accession: filing.accession };
+    return {
+      period,
+      revenue: selectFact(taxonomy, concepts.revenue, period, filing.form),
+      netIncome: selectFact(taxonomy, concepts.netIncome, period, filing.form),
+    };
+  };
+
+  const filings: [AnnualFacts, AnnualFacts] = [
+    extract(request.filings[0]),
+    extract(request.filings[1]),
+  ];
+  return { request, filings };
 }

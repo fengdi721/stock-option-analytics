@@ -4,11 +4,12 @@ import { calculateExpiryPayoff } from '../domain/payoff.ts';
 import { retrieveFilings, validateCache } from '../sec/retrieval.ts';
 import { scenarioFromQuotes } from '../adapters/quotes.ts';
 import { compareAnnualFinancials } from '../financial/comparison.ts';
+import { reconcileAnnualFinancials } from '../financial/reconciliation.ts';
 import { retrieveCompanyFacts } from '../sec/companyfacts-retrieval.ts';
 import { readCompanyFactsCache } from '../sec/companyfacts-cache.ts';
 
 export const usage =
-  'Usage: node src/cli.ts payoff <scenario.json> | quote-payoff <snapshot.csv> <request.json> | sec-fetch <request.json> <cache-root> | sec-validate <cache-directory> | financial-compare <companyfacts.json> <request.json> | companyfacts-fetch <cik> <cache-root> | companyfacts-validate <cache-directory> | financial-compare-cached <cache-directory> <request.json>';
+  'Usage: node src/cli.ts payoff <scenario.json> | quote-payoff <snapshot.csv> <request.json> | sec-fetch <request.json> <cache-root> | sec-validate <cache-directory> | financial-compare <companyfacts.json> <request.json> | companyfacts-fetch <cik> <cache-root> | companyfacts-validate <cache-directory> | financial-compare-cached <cache-directory> <request.json> | financial-reconcile <companyfacts.json> <request.json> | financial-reconcile-cached <cache-directory> <request.json>';
 function readBytes(path: string, limit = 2_000_000): Buffer {
   const message =
     limit === 2_000_000 ? 'input exceeds 2 MB limit' : `input exceeds ${limit} byte limit`;
@@ -39,12 +40,11 @@ export async function runCommand(args: string[], environment: NodeJS.ProcessEnv)
       provenance: { ...provenance, snapshotSha256: createHash('sha256').update(csv).digest('hex') },
     };
   }
-  if (args[0] === 'financial-compare' && args.length === 3) {
+  if (['financial-compare', 'financial-reconcile'].includes(args[0]) && args.length === 3) {
     const bytes = readBytes(args[1], 25_000_000);
-    const result = compareAnnualFinancials(
-      JSON.parse(bytes.toString('utf8')) as unknown,
-      readJson(args[2]),
-    );
+    const analyze =
+      args[0] === 'financial-reconcile' ? reconcileAnnualFinancials : compareAnnualFinancials;
+    const result = analyze(JSON.parse(bytes.toString('utf8')) as unknown, readJson(args[2]));
     return {
       ...result,
       provenance: {
@@ -62,13 +62,17 @@ export async function runCommand(args: string[], environment: NodeJS.ProcessEnv)
     const { manifest } = await readCompanyFactsCache(args[1]);
     return { valid: true, manifest };
   }
-  if (args[0] === 'financial-compare-cached' && args.length === 3) {
+  if (
+    ['financial-compare-cached', 'financial-reconcile-cached'].includes(args[0]) &&
+    args.length === 3
+  ) {
     const { bytes, manifest } = await readCompanyFactsCache(args[1]);
+    const analyze =
+      args[0] === 'financial-reconcile-cached'
+        ? reconcileAnnualFinancials
+        : compareAnnualFinancials;
     return {
-      ...compareAnnualFinancials(
-        JSON.parse(new TextDecoder().decode(bytes)) as unknown,
-        readJson(args[2]),
-      ),
+      ...analyze(JSON.parse(new TextDecoder().decode(bytes)) as unknown, readJson(args[2])),
       provenance: { ...manifest.artifact, verification: 'cache-integrity-and-identity' },
     };
   }
