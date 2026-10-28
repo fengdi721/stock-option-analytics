@@ -80,3 +80,22 @@ npm run check
 ```
 
 本轮完整检查 133 项通过，新增 14 项离线测试。真实验收只证明这两个指定指标没有数值差异；变化、修订件和失败路径使用合成测试验证，尚无真实正式重述案例验收。未运行远程 CI，未将数值对账写作全部重述分析或 V1 完成。
+
+## 2026-10-29：显式经营活动净现金流验收
+
+使用 examples/financial-apple-cash-flow.json，仅选择 operatingCashFlow，读取既有 Company Facts 缓存（完整 SHA-256 仍为 73a86c6aedc31f77cac2ea4df5f80f0b3bd7e6eb58bb4e01444fbedf3afb9c43），未重新下载。两期保持原 Apple 2023/2024 accession 与 start/end。
+
+| 指标             | 2023 USD     | 2024 USD     | 差额 USD   | 变化率 |
+| ---------------- | ------------ | ------------ | ---------- | ------ |
+| 经营活动净现金流 | 110543000000 | 118254000000 | 7711000000 | 6.98%  |
+
+JSON Pointer 为 `/facts/us-gaap/NetCashProvidedByUsedInOperatingActivities/units/USD/113` 与 `/facts/us-gaap/NetCashProvidedByUsedInOperatingActivities/units/USD/122`。逐条核对值、accn、start/end 与 10-K 表单；再对原始两份 HTML 验证 hash，按非分部 context、USD unit、scale/sign 与相同概念提取，数值一致。使用独立 Python Decimal 复算差额与两位增长率，结果一致。
+
+注入失败 fetch 后通过缓存命令执行，networkCalls=0。报告保留于当前隔离 worktree 的 outputs/operating-cash-flow-apple.json。371/364 天差异仍输出 unequal_period_lengths；6.98% 是原始期间变化，未归一化。没有将经营活动现金流标为自由现金流。
+
+```sh
+node src/cli.ts financial-metrics-cached "$CACHE_DIR" examples/financial-apple-cash-flow.json
+node src/cli.ts financial-metrics fixtures/metrics.synthetic.json fixtures/metrics-request.json
+```
+
+本增量完整 check 为 144 项离线测试，通过旧默认输出兼容、选择与数值/缺失/来源测试。PR #1 的远程检查与 main 集成检查此前均成功，但不覆盖这个后续本地现金流增量；新功能尚未推送。

@@ -1,0 +1,74 @@
+{
+  "cik": 123,
+  "entityName": "SYNTHETIC EXAMPLE ONLY",
+  "facts": {
+    "us-gaap": {
+      "RevenueFromContractWithCustomerExcludingAssessedTax": {
+        "units": {
+          "USD": [
+            {
+              "accn": "0000000123-23-000001",
+              "start": "2022-01-01",
+              "end": "2022-12-31",
+              "form": "10-K",
+              "filed": "2023-02-01",
+              "val": 2000
+            },
+            {
+              "accn": "0000000123-24-000001",
+              "start": "2023-01-01",
+              "end": "2023-12-31",
+              "form": "10-K",
+              "filed": "2024-02-01",
+              "val": 2500
+            }
+          ]
+        }
+      },
+      "NetIncomeLoss": {
+        "units": {
+          "USD": [
+            {
+              "accn": "0000000123-23-000001",
+              "start": "2022-01-01",
+              "end": "2022-12-31",
+              "form": "10-K",
+              "filed": "2023-02-01",
+              "val": 100
+            },
+            {
+              "accn": "0000000123-24-000001",
+              "start": "2023-01-01",
+              "end": "2023-12-31",
+              "form": "10-K",
+              "filed": "2024-02-01",
+              "val": 250
+            }
+          ]
+        }
+      },
+      "NetCashProvidedByUsedInOperatingActivities": {
+        "units": {
+          "USD": [
+            {
+              "accn": "0000000123-23-000001",
+              "start": "2022-01-01",
+              "end": "2022-12-31",
+              "form": "10-K",
+              "filed": "2023-02-01",
+              "val": 300
+            },
+            {
+              "accn": "0000000123-24-000001",
+              "start": "2023-01-01",
+              "end": "2023-12-31",
+              "form": "10-K",
+              "filed": "2024-02-01",
+              "val": 450
+            }
+          ]
+        }
+      }
+    }
+  }
+}

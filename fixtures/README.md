@@ -9,3 +9,5 @@ call-spread.json：买入 100 call 支付 5，卖出 105 call 收入 3，乘数 
 companyfacts.synthetic.json 与 financial-request.json 是虚构 CIK/申报数据，仅用于离线财务 CLI 演示。营收 2000/2500 USD、净利润 100/250 USD；字段形状参考 Company Facts，不能冒充真实 SEC 数据。真实 Apple 请求另置 examples/financial-apple-annual.json。
 
 reconciliation.synthetic.json 与 reconciliation-request.json 是同期间对账的合成例子：同一年度营收 2000 → 2100、净利润 100 → 90 USD，后披露 accession 与申报日期不同。它不是一宗真实公司的重述证据。
+
+metrics.synthetic.json / metrics-request.json 为显式指标演示，包含独立合成的经营活动净现金流 300/450 USD，选择顺序为 operatingCashFlow、revenue；不代表真实公司数据。

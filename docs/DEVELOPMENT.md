@@ -161,3 +161,11 @@
 - 从最新 origin/main 在现有隔离 worktree 创建 feat/operating-cash-flow，继续路线图中的显式指标与经营活动净现金流；原 checkout 的风格修改保留。当前推送/合并授权用于已完成工作，后续增量默认仍做本地提交。
 - 为新增指标复用现有精确算法，将百分比舍入、缺失/非正分母处理和差额计算移动到 financial/calculations；原年度比较的输出保持不变。未新增业务规则、依赖或重复实现；不为代码移动新增镜像测试。
 - 完整 npm run check 通过，133 项离线测试，git diff --check 通过。现金流提取与 CLI 尚待后续功能提交，不能将已合并 PR 的 CI 当作新分支检查结果。
+
+## 2026-10-29 · 25 显式指标选择与经营活动净现金流
+
+- 新增 financial-metrics / financial-metrics-cached，显式选择 revenue、netIncome、operatingCashFlow，保持输入顺序，拒绝空/重复/未知/稀疏选择。共用 Company Facts 事实选择与精确计算，旧年度比较/对账的默认请求和结果保持兼容。新增 ADR 0018，文档注明 cash flow 概念、单位、负值与非正基数限制。
+- 完整 npm run check 通过，144 项离线测试（新增 11 项）；格式、零 warning lint、架构与类型检查通过，git diff --check 通过。普通测试使用合成内容，不依赖真实 SEC 网络。
+- 实际 Apple 缓存验收：2023/2024 经营活动净现金流 110543000000 / 118254000000 USD，差额 7711000000、变化率 6.98%；与原始两份 HTML/固定 API 指针一致，独立 Decimal 复算一致。禁用 fetch 后 networkCalls=0，期间长度差异提示保留，未重抓数据。
+- GitHub main push CI 40788934733（ef01c16）已成功，核验链接：https://github.com/fengdi721/stock-option-analytics/actions/runs/40788934733。这是已合并 PR #1 的集成结果，不覆盖本轮现金流增量。
+- 本轮重构与功能分开本地提交，新分支不自动推送；原工作区风格修改保留。下一轮唯一任务为显式指标的同期间对账；模型/云和整条路线图均未完成。

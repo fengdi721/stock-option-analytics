@@ -18,5 +18,6 @@
 | [0014](0014-annual-financial-facts.md)       | 年度财务事实与离线比较         | Accepted                             |
 | [0016](0016-companyfacts-cache.md)           | Company Facts 来源与离线缓存   | Accepted                             |
 | [0017](0017-same-period-reconciliation.md)   | 同期间披露数值对账             | Accepted                             |
+| [0018](0018-explicit-financial-metrics.md)   | 显式财务指标与经营活动净现金流 | Accepted                             |
 
 新增 ADR 使用四位连续编号，包含背景、决定、替代方案、代价和验证。Accepted 表示已采用技术决定，不代表对应产品能力已完成。

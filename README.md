@@ -27,6 +27,7 @@ node src/cli.ts payoff fixtures/call-spread.json
 node src/cli.ts quote-payoff fixtures/quotes.synthetic.csv fixtures/quote-request.json
 node src/cli.ts financial-compare fixtures/companyfacts.synthetic.json fixtures/financial-request.json
 node src/cli.ts financial-reconcile fixtures/reconciliation.synthetic.json fixtures/reconciliation-request.json
+node src/cli.ts financial-metrics fixtures/metrics.synthetic.json fixtures/metrics-request.json
 ```
 
 两份期权示例均使用合成 DEMO 标的。标的到期价格 90、100、102、105、110 对应组合净损益 -202.60、-202.60、-2.60、297.40、297.40 USD。
@@ -38,3 +39,5 @@ SEC 首次下载、User-Agent 和离线复用见 [输入与运行说明](docs/US
 财务示例同样为合成数据：营收 2000 → 2500 USD（+25.00%），净利润 100 → 250 USD（+150.00%），净利率 5.00% → 10.00%。真实 Apple 两期结果和独立交叉核验见财务验收记录；financial-compare 导入裸快照；正式下载与完整性缓存使用 companyfacts-fetch，之后用 financial-compare-cached 计算，命令见 USAGE。
 
 同期间披露对账已提供 financial-reconcile / financial-reconcile-cached：比较明确的两个 accession 对同一年度的营收与净利润，保留双方引用及差额。合成对账示例的差额为 +100 / -10 USD。数值变化仅作为调查线索，不自动认定正式重述。
+
+显式年度指标比较使用 financial-metrics / financial-metrics-cached，可选择营收、净利润或经营活动净现金流。合成现金流 300 → 450 USD，差额 150、增长率 50.00%；现有年度比较和对账的默认输出保持不变。

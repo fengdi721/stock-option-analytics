@@ -41,3 +41,5 @@ V1 财务数据流：Company Facts 快照 + 明确期间请求 → 精确选择 
 Company Facts 获取流：CIK → 完整缓存复核 → 精确 SEC API URL → JSON/公司身份检查 → blob → 原子发布独立 manifest。缓存读取返回同一份已验证 bytes，CLI 交给 financial 计算，SEC 模块不反向依赖 financial。纯模块约束包含 companyfacts-contracts；I/O 模块复用 artifact-store 与 http。缓存无自动刷新，新的根目录代表新的来源快照。
 
 同期间对账的数据流：明确 period + 两份 accession/form → companyfacts 共用事实选择器 → reconciliation 纯差额与申报日一致性校验 → CLI 来源信息。旧年度比较仍默认选择 10-K，新请求才允许明确 10-K/A。对账保留双方原值与引用，不把 changed 转换成正式重述判断；没有新增网络入口或跨层依赖。
+
+显式指标比较：metrics-contracts 固定指标名/标准概念与请求校验，companyfacts 共用精确选择器，selected-metrics 产生按选择顺序排列的事实与变化。calculations 提供共同的精确百分比/差额规则，原 comparison 继续复用；模块均无 I/O。没有默认扩大旧输出，也没有新增依赖或运行时注册层。

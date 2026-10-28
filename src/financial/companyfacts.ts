@@ -3,10 +3,7 @@ import { date } from '../sec/contracts.ts';
 import { parseComparisonRequest, parseReconciliationRequest } from './contracts.ts';
 import type { AnnualFacts, AnnualPeriod, ReportedFact } from './contracts.ts';
 
-const concepts = {
-  revenue: 'RevenueFromContractWithCustomerExcludingAssessedTax',
-  netIncome: 'NetIncomeLoss',
-};
+import { metricConcepts, parseMetricsRequest } from './metrics-contracts.ts';
 
 function selectFact(
   taxonomy: Record<string, unknown>,
@@ -72,8 +69,8 @@ export function extractAnnualFacts(snapshot: unknown, input: unknown) {
   const taxonomy = readTaxonomy(snapshot, request.cik);
   const extract = (period: AnnualPeriod): AnnualFacts => ({
     period,
-    revenue: selectFact(taxonomy, concepts.revenue, period),
-    netIncome: selectFact(taxonomy, concepts.netIncome, period),
+    revenue: selectFact(taxonomy, metricConcepts.revenue, period),
+    netIncome: selectFact(taxonomy, metricConcepts.netIncome, period),
   });
   const periods: [AnnualFacts, AnnualFacts] = [
     extract(request.periods[0]),
@@ -90,8 +87,8 @@ export function extractReconciliationFacts(snapshot: unknown, input: unknown) {
     const period = { ...request.period, accession: filing.accession };
     return {
       period,
-      revenue: selectFact(taxonomy, concepts.revenue, period, filing.form),
-      netIncome: selectFact(taxonomy, concepts.netIncome, period, filing.form),
+      revenue: selectFact(taxonomy, metricConcepts.revenue, period, filing.form),
+      netIncome: selectFact(taxonomy, metricConcepts.netIncome, period, filing.form),
     };
   };
 
@@ -100,4 +97,18 @@ export function extractReconciliationFacts(snapshot: unknown, input: unknown) {
     extract(request.filings[1]),
   ];
   return { request, filings };
+}
+
+export function extractSelectedMetrics(snapshot: unknown, input: unknown) {
+  const request = parseMetricsRequest(input);
+  const taxonomy = readTaxonomy(snapshot, request.cik);
+  const metrics = request.metrics.map((metric) => {
+    const concept = metricConcepts[metric];
+    const observations: [ReportedFact, ReportedFact] = [
+      selectFact(taxonomy, concept, request.periods[0]),
+      selectFact(taxonomy, concept, request.periods[1]),
+    ];
+    return { metric, concept, observations };
+  });
+  return { cik: request.cik, periods: request.periods, metrics };
 }

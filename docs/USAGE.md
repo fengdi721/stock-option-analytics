@@ -96,3 +96,24 @@ node src/cli.ts financial-reconcile-cached outputs/sec/companyfacts/0000320193 e
 chronology 取 ordered-by-filing-date、same-day-order-unverified 或 unavailable。日期来自所选事实，单份申报内日期冲突、后申报日早于原申报日均拒绝；同日不推断日内顺序，完全缺失时 filedAt=null。该日期不是精确市场可用时点。
 
 interpretation=numeric-disclosure-comparison-only 限制结果含义：差异不能单独证明正式重述，数值相同也不排除其他指标或披露内容变化。裸文件/缓存两种命令沿用原有 provenance 与零网络运行方式，退出码和 stderr JSON 协议不变。
+
+## 显式年度指标与经营活动净现金流
+
+```sh
+node src/cli.ts financial-metrics fixtures/metrics.synthetic.json fixtures/metrics-request.json
+node src/cli.ts financial-metrics-cached outputs/sec/companyfacts/0000320193 examples/financial-apple-cash-flow.json
+```
+
+请求字段是 cik、periods 与必填 metrics。cik/periods 保持原年度比较的两期连续年度约束；metrics 为一至三个不重复的指标名，输出保持选择顺序：
+
+| 指标名            | 含义             | 固定 us-gaap 概念                                   |
+| ----------------- | ---------------- | --------------------------------------------------- |
+| revenue           | 营收             | RevenueFromContractWithCustomerExcludingAssessedTax |
+| netIncome         | 净利润           | NetIncomeLoss                                       |
+| operatingCashFlow | 经营活动净现金流 | NetCashProvidedByUsedInOperatingActivities          |
+
+仅支持指定概念下的 USD 整数年度 10-K，金额不是“百万美元”显示单位。未知指标、重复或空选择会拒绝；缺概念/单位/匹配观察值不会尝试其他概念或填零。经营活动净现金流可以为负，这里没有计算自由现金流。
+
+输出 basis=as-filed-selected-metrics。metrics 数组每项包含 metric、concept、observations（与 periods 的旧/新顺序一致）及 change；后者提供 differenceUsd 和 percentChange，使用既有精确差额、两位百分比舍入与非正前期拒算规则。期间天数不同保留 warning，不做日数调整。新命令不输出指标间派生比率；原年度比较的净利率和默认字段不变。
+
+两种命令分别沿用 local-content-hash-only 与 cache-integrity-and-identity 来源记录，运行时均不联网。不要将新 metrics 请求传给旧 financial-compare；旧命令仍严格拒绝多余字段。同期间对账的指标选择尚待下一步，旧对账保持营收/净利润。
