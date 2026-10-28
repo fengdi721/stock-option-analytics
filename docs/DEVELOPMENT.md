@@ -125,3 +125,10 @@
 - prepare 自动安装 .husky/_，pre-commit 检查暂存 TypeScript/MJS 的 ESLint（零 warning）和受支持文件的 Prettier；不自动修复，隐藏并恢复未暂存的已跟踪修改。CI 跳过 hook 安装，继续完整 check。贡献指南与 ADR 0013 说明使用方式与绕过/范围限制。
 - 实际验证：npm ci 成功触发 prepare，hooksPath=.husky/_；npm ls 无 peer 错误。临时仓库真实提交验证正常通过、lint 错误拒绝、warning 拒绝、格式错误拒绝、带空格文件名、部分暂存与失败状态恢复，无遗留 stash。临时验收脚本 /tmp/stock-hook-acceptance.py 不进入产品源码。
 - 本地完整 npm run check 通过：格式、零 warning lint、架构、类型与 76 项离线测试。未添加业务测试或改变 SEC 行为；本轮只本地提交，未推送，未运行本轮远程 CI。
+
+## 2026-10-28 · 19 V1 年度财务提取与比较核心
+
+- 开始时工作区干净，HEAD=5cc6895，完整 check 基线 76 项通过。下一项依 ROADMAP/PROGRESS 是 V1 财务指标；先建立可离线复核的 Company Facts 提取与计算，不启动模型或云资源。
+- 新增 financial 三个有明确职责的纯模块、ADR 0014，以及自动依赖/I/O 约束。两个显式连续年度期间、固定标准营收/净利润标签；精确来源定位、缺失传播、冲突拒绝、重述 accession 隔离及期间差异提示。金额与比例使用整数运算。
+- 验证：完整 npm run check 通过，103 项离线测试（新增 27 项行为/边界测试），lint 零 warning，依赖检查通过。CLI 接入与真实快照交叉核验将在下一提交完成，不把核心测试写作 V1 全部验收。
+- 本地 SEC Company Facts 快照已单次获取到 outputs/financial，未提交原始数据/联系邮箱；系统 Python 无 HTTPS 支持的首次尝试未发出请求，改用项目 Node 24。仍仅本地提交，不推送。

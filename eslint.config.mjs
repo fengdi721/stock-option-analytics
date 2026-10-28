@@ -31,6 +31,7 @@ export default defineConfig([
     files: [
       'src/domain/**/*.ts',
       'src/shared/**/*.ts',
+      'src/financial/**/*.ts',
       'src/sec/{contracts,content,submissions}.ts',
     ],
     rules: {

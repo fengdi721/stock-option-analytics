@@ -1,7 +1,19 @@
-const pureModules = '^src/(domain/|shared/|sec/(contracts|content|submissions)\\.ts$)';
+const pureModules = '^src/(domain/|shared/|financial/|sec/(contracts|content|submissions)\\.ts$)';
 
 export default {
   forbidden: [
+    {
+      name: 'financial-dependencies',
+      severity: 'error',
+      from: { path: '^src/financial/' },
+      to: { pathNot: '^src/(financial/|shared/|sec/contracts\\.ts$)' },
+    },
+    {
+      name: 'financial-independent-of-existing-features',
+      severity: 'error',
+      from: { path: '^src/(domain/|adapters/|sec/)' },
+      to: { path: '^src/financial/' },
+    },
     { name: 'no-cycles', severity: 'error', from: {}, to: { circular: true } },
     { name: 'no-unresolved-imports', severity: 'error', from: {}, to: { couldNotResolve: true } },
     {
@@ -14,12 +26,12 @@ export default {
       name: 'shared-independent-of-features',
       severity: 'error',
       from: { path: '^src/shared/' },
-      to: { path: '^src/(domain/|adapters/|sec/|cli)' },
+      to: { path: '^src/(domain/|adapters/|financial/|sec/|cli)' },
     },
     {
       name: 'no-feature-to-cli',
       severity: 'error',
-      from: { path: '^src/(domain/|shared/|adapters/|sec/)' },
+      from: { path: '^src/(domain/|shared/|adapters/|financial/|sec/)' },
       to: { path: '^src/cli' },
     },
     {
