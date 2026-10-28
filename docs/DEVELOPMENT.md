@@ -29,3 +29,10 @@
 - 添加 strict/noEmit 配置、npm run check 和只读权限 GitHub Actions，新增 ADR 0004。
 - 验证：npm run check 通过（类型检查与 32 项测试）；npm 安装报告当时 0 vulnerabilities；这不是全面安全审计。git diff --check 通过。
 - 文档明确区分 V0a 完成与财报/模型/云部署待办；当前只做本地提交，没有推送和远程 CI 结果。
+
+## 2026-10-28 · 05 SEC metadata 契约
+
+- 重新读取项目约定与全部 ADR，确认工作树干净、最近提交为 f64bcb7；基线 npm run check 为 32 项通过。
+- 新增固定 CIK/accession 请求、两期同表单 manifest、严格日期/URL/字节长度/hash 校验及 ADR 0005。
+- 验证：npm run check 通过（类型检查与 48 项测试）；git diff --check 通过。测试全部离线，新增数据为合成 metadata。
+- 尚未实现网络下载与磁盘缓存，真实财报验收仍待完成。
