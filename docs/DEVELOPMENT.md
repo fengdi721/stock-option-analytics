@@ -97,3 +97,10 @@
 - 按用户明确授权扫描全部 13 个历史提交、129 个 blob；所检查秘密模式零命中，核验缓存与联系邮箱未提交，Git 作者身份保留。扫描有识别范围限制。
 - GitHub API 实测 visibility=public、private=false。新增 ADR 0010，保留未选择开源许可证的状态。
 - 最新已验证远程 CI 为 4130a3c 的 Quality gate 成功。计划在本记录推送后启用 main 的 PR、指定 Actions 检查、最新分支、管理员约束与禁止强推/删除，并回读验证。
+
+## 2026-10-28 · 15 恢复基线与 SEC 校验边界
+
+- 重新读取要求中的全部文档、ADR、代码和 CI；未发现适用 AGENTS.md。恢复时 main/caf7246 干净，Node 24.20.0 / npm 11.19.0；npm run check 基线 70 项通过，npm ls 无 peer 错误。原有本地工具与运行方式满足要求，未重复安装或升级依赖。
+- 在本地 refactor/sec-validation-boundaries 分支增量修正：独立 metadata 校验替代临时 manifest，解析返回独立构造的类型值；共享 artifact 大小契约。新增 ADR 0011，保留原有输入输出 schema 与缓存。
+- 验证：完整 npm run check 通过，76 项测试全绿；git diff --check 通过。新增回归针对 metadata 拒绝时机和调用方修改输入，不为排版增加测试。
+- 本轮按用户要求只做本地提交；未推送，不宣称远程 CI 验证本轮代码。下一步补全纯模块自动约束并复核真实 SEC 缓存。

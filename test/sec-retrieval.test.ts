@@ -335,3 +335,52 @@ await test('HTTP redirects are rejected without following their location', async
   );
   assert.equal(count, 1);
 });
+
+for (const [label, mutate] of [
+  [
+    'invalid calendar date',
+    (m: typeof metadata) => {
+      m.filings.recent.reportDate[0] = '2023-02-29';
+    },
+  ],
+  [
+    'inverted chronology',
+    (m: typeof metadata) => {
+      m.filings.recent.filingDate[0] = '2023-06-01';
+    },
+  ],
+  [
+    'mixed forms',
+    (m: typeof metadata) => {
+      m.filings.recent.form[1] = '10-Q';
+    },
+  ],
+  [
+    'duplicate periods',
+    (m: typeof metadata) => {
+      m.filings.recent.reportDate[1] = m.filings.recent.reportDate[0];
+    },
+  ],
+] as const) {
+  await test(`invalid SEC metadata (${label}) stops before any document download`, async (t) => {
+    const root = await temporary(t);
+    const invalid = structuredClone(metadata);
+    mutate(invalid);
+    let calls = 0;
+    await assert.rejects(
+      retrieveFilings(request, root, {
+        ...options,
+        fetch: stubFetch(() => {
+          calls++;
+          assert.equal(calls, 1, 'invalid metadata must not trigger a document request');
+          return new Response(JSON.stringify(invalid), {
+            headers: { 'content-type': 'application/json' },
+          });
+        }),
+      }),
+    );
+    assert.equal(calls, 1);
+    await assert.rejects(access(join(cacheDirectory(root, request), 'manifest.json')));
+    await assert.rejects(access(join(cacheDirectory(root, request), '.lock')));
+  });
+}

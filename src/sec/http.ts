@@ -1,10 +1,10 @@
 import { setTimeout as delay } from 'node:timers/promises';
-import { filingUrl, submissionsUrl } from './contracts.ts';
+import { MAX_ARTIFACT_BYTES, filingUrl, submissionsUrl } from './contracts.ts';
 import type { Artifact } from './contracts.ts';
 import { sha256 } from './integrity.ts';
 import { validateFilingHtml } from './content.ts';
 
-export const MAX_ARTIFACT_BYTES = 25_000_000;
+export { MAX_ARTIFACT_BYTES } from './contracts.ts';
 const MAX_ATTEMPTS = 3;
 const REQUEST_INTERVAL_MS = 250;
 const REQUEST_TIMEOUT_MS = 30_000;

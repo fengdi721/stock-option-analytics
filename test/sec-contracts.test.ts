@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { sha256, verifyBytes } from '../src/sec/integrity.ts';
-import { parseManifest, parseRequest, filingUrl } from '../src/sec/contracts.ts';
+import { parseManifest, parseRequest, filingUrl, parseMetadataPair } from '../src/sec/contracts.ts';
 
 // Synthetic metadata and bytes, never represented as downloaded SEC content.
 export function syntheticManifest() {
@@ -89,4 +89,52 @@ void test('request rejects sparse programmatic accession tuples', () => {
   const accessions = new Array<string>(2);
   accessions[1] = '0000000001-24-000001';
   assert.throws(() => parseRequest({ cik: '0000000001', accessions }), /invalid accession/);
+});
+
+void test('metadata validates before downloads without hash or download fields', () => {
+  const metadata = syntheticManifest().filings.map(
+    ({ cik, accession, form, periodEnd, filedAt, sourceUrl }) => ({
+      cik,
+      accession,
+      form,
+      periodEnd,
+      filedAt,
+      sourceUrl,
+    }),
+  );
+  assert.deepEqual(parseMetadataPair(metadata), metadata);
+  assert.throws(() =>
+    parseMetadataPair([{ ...metadata[0], downloadedAt: '2025-01-01T00:00:00.000Z' }, metadata[1]]),
+  );
+  assert.throws(
+    () => parseMetadataPair([{ ...metadata[0], filedAt: '2023-06-01' }, metadata[1]]),
+    /chronology/,
+  );
+  assert.throws(
+    () => parseMetadataPair([metadata[0], { ...metadata[1], periodEnd: metadata[0].periodEnd }]),
+    /distinct/,
+  );
+});
+
+void test('validated SEC values are independent of mutable caller input', () => {
+  const input = { cik: '0000000001', accessions: ['0000000001-23-000001', '0000000001-24-000001'] };
+  const parsed = parseRequest(input);
+  input.cik = '0000000002';
+  input.accessions[0] = '../../invalid';
+  assert.deepEqual(parsed, {
+    cik: '0000000001',
+    accessions: ['0000000001-23-000001', '0000000001-24-000001'],
+  });
+  const manifest = syntheticManifest();
+  const verified = parseManifest(manifest);
+  manifest.filings[0].sourceUrl = 'https://example.invalid/changed';
+  manifest.submissions.sha256 = 'tampered';
+  assert.equal(
+    verified.submissions.sha256,
+    'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
+  );
+  assert.equal(
+    verified.filings[0].sourceUrl,
+    'https://www.sec.gov/Archives/edgar/data/1/000000000123000001/annual.htm',
+  );
 });

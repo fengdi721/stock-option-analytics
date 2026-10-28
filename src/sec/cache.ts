@@ -1,13 +1,12 @@
 import { mkdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { join } from 'node:path';
-import { parseManifest, parseRequest } from './contracts.ts';
+import { MAX_ARTIFACT_BYTES, parseManifest, parseRequest } from './contracts.ts';
 import type { Artifact, FilingRequest, Manifest } from './contracts.ts';
 import { verifyBytes } from './integrity.ts';
 import { validateFilingHtml } from './content.ts';
 import { selectFilings } from './submissions.ts';
 
-const MAX_ARTIFACT_BYTES = 25_000_000;
 const MAX_MANIFEST_BYTES = 100_000;
 
 export function cacheDirectory(root: string, input: unknown): string {
