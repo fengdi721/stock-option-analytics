@@ -1,0 +1,3 @@
+symbol,expiration,type,strike,bid,ask,quote_at,multiplier,source
+DEMO,2027-01-15,call,100,4.80,5.00,2026-10-28T14:30:00Z,100,synthetic
+DEMO,2027-01-15,call,105,3.00,3.20,2026-10-28T14:30:00Z,100,synthetic

@@ -11,3 +11,18 @@
 - [贡献与验证规则](CONTRIBUTING.md)
 
 本项目是学习与工程演示。目前没有实盘交易、实时行情、真实回测收益或已部署的 AWS 服务。合成数据不能当作历史行情。
+
+## 本地运行
+
+需要 Node.js 24；计算与测试没有运行时第三方依赖。
+
+```sh
+npm test
+npm run demo
+node src/cli.ts payoff fixtures/call-spread.json
+node src/cli.ts quote-payoff fixtures/quotes.synthetic.csv fixtures/quote-request.json
+```
+
+两份示例均使用合成 DEMO 标的。标的到期价格 90、100、102、105、110 对应组合净损益 -202.60、-202.60、-2.60、297.40、297.40 USD。
+
+需输出纯 JSON 时直接运行 node 命令；npm run 会额外打印脚本标题。正常结果在 stdout，错误 JSON 在 stderr 且退出码为 1。详细字段见 [输入与运行说明](docs/USAGE.md)。
