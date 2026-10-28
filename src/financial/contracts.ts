@@ -51,3 +51,44 @@ export function parseComparisonRequest(input: unknown): ComparisonRequest {
   }
   return { cik: request.cik, periods };
 }
+
+export type ReconciliationRequest = {
+  cik: string;
+  period: { start: string; end: string };
+  filings: [{ accession: string; form: '10-K' }, { accession: string; form: '10-K' | '10-K/A' }];
+};
+
+/** Both filings must explicitly refer to the same annual duration, not two fiscal years. */
+export function parseReconciliationRequest(input: unknown): ReconciliationRequest {
+  const value = object(input, 'reconciliation request');
+  keys(value, ['cik', 'period', 'filings'], 'reconciliation request');
+  const period = object(value.period, 'period');
+  keys(period, ['start', 'end'], 'period');
+  if (!Array.isArray(value.filings) || value.filings.length !== 2) {
+    throw new Error('exactly two explicit filings required');
+  }
+  const original = object(value.filings[0], 'original filing');
+  const later = object(value.filings[1], 'later filing');
+  for (const filing of [original, later]) {
+    keys(filing, ['accession', 'form'], 'filing');
+  }
+  if (original.form !== '10-K' || (later.form !== '10-K' && later.form !== '10-K/A')) {
+    throw new Error('require an original 10-K and an explicit later 10-K or 10-K/A');
+  }
+  const request = parseRequest({
+    cik: value.cik,
+    accessions: [original.accession, later.accession],
+  });
+  const annual = parsePeriod(
+    { ...period, accession: request.accessions[0] },
+    request.accessions[0],
+  );
+  return {
+    cik: request.cik,
+    period: { start: annual.start, end: annual.end },
+    filings: [
+      { accession: request.accessions[0], form: original.form },
+      { accession: request.accessions[1], form: later.form },
+    ],
+  };
+}

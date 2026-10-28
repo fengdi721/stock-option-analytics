@@ -146,3 +146,11 @@
 - 真实空缓存 outputs/companyfacts-acceptance-8WhnBU：首次 1 次请求、cacheHit=false；随后禁用 fetch 做校验/财务比较/再次获取，networkCalls=0、cacheHit=true，结果与先前 Apple 观察一致。新下载时间为 2026-10-28T22:37:48.769Z，字节 hash 不变，证据在该忽略目录 acceptance.json。
 - 本地完整 npm run check 通过，119 项离线测试（新增 13 项），格式、lint、架构与类型检查通过。真实下载独立于普通测试；未推送、未运行本轮远程 CI。
 - 同目录另有 TypeScript 风格配置/排版任务的未提交修改。本提交只包含 Company Facts 功能与必要公共存储抽取，保留并发修改；不把工作区残留改动误报为已提交或干净。
+
+## 2026-10-29 · 23 循环第一轮：同期间披露数值对账
+
+- 恢复时主 checkout 位于 471fdf3，存在已知并发风格配置/排版与 ADR 0015；完整 check 基线 119 项通过。读取现有规范/路线图/验收与代码后，在 managed worktree financial-reconciliation 创建 feat/financial-reconciliation，从该提交继续；原工作区修改保留。Node 24.20.0 / npm 11.19.0，锁定依赖离线安装成功，Husky 启用。
+- 实现同一年度、两个明确 accession/form 的数值对账，新增裸快照和缓存 CLI。复用事实选择器，保持旧年度比较 10-K 默认；新请求允许显式后续 10-K/A，保留原值/后值、双方引用、精确差额与缺失状态。校验申报日冲突与顺序，同日顺序保持未知。ADR 0017 明确数值变化不能自动认定正式重述。
+- 完整 npm run check 通过：133 项离线测试（新增 14 项），格式、lint 零 warning、依赖边界与类型检查通过。测试覆盖数值差额、相同/缺失、修订件、冲突/日期、严格请求与输入隔离、CLI 协议和缓存损坏；git diff --check 通过。
+- 真实 Apple 2023 年度在 2023/2024 两份指定 10-K 内的营收与净利润均 unchanged；逐条复核快照 JSON Pointer 和身份/期间，禁网执行 networkCalls=0。未下载新数据；结果留在本 worktree 的 outputs/reconciliation-apple.json。该真实案例不作为正式重述案例，详见 FINANCIAL-VALIDATION。
+- 本轮只做本地提交；未 push、未运行远程 CI、未启动模型或云资源。下一轮唯一优先任务：年度经营活动净现金流的显式指标契约与提取/比较来源验证；其余路线图保持未完成。

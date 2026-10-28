@@ -59,3 +59,24 @@ node src/cli.ts companyfacts-fetch 0000320193 outputs/companyfacts-acceptance-8W
 ```
 
 本轮完整 check 为 119 项离线测试；13 项新测试覆盖公司快照获取、缓存与 CLI 集成。仍未运行本轮远程 CI，未实现自动刷新、重述对账、更多指标或模型报告。
+
+## 2026-10-29：同期间对账增量验收
+
+在隔离 worktree 的 feat/financial-reconciliation 分支，使用既有已验证 Company Facts 缓存（SHA-256 仍为上文 73a86c…b9c43），本轮未重新下载。请求 examples/financial-apple-reconciliation.json 固定 period=2022-09-25 至 2023-09-30，并指定 2023/2024 两份 10-K accession。
+
+| 指标   | 原披露值 USD | 后披露值 USD | 差额 USD | 结果      | 原/后 USD 数组索引 |
+| ------ | ------------ | ------------ | -------- | --------- | ------------------ |
+| 营收   | 383285000000 | 383285000000 | 0        | unchanged | 86 / 87            |
+| 净利润 | 96995000000  | 96995000000  | 0        | unchanged | 307 / 308          |
+
+对应申报日分别为 2023-11-03 和 2024-11-01，chronology=ordered-by-filing-date。逐条解析输出 JSON Pointer，复核原始快照中的 val、accn、start/end、filed 和 form，均一致。注入计数并抛错的 fetch 后执行缓存对账，networkCalls=0。结果保留在本 worktree 忽略目录 outputs/reconciliation-apple.json；原始快照仍留在原 checkout，未复制或提交数据。
+
+复现时从当前 worktree 运行，将 CACHE_DIR 指向之前下载的 companyfacts/0000320193 目录：
+
+```sh
+node src/cli.ts financial-reconcile-cached "$CACHE_DIR" examples/financial-apple-reconciliation.json
+node src/cli.ts financial-reconcile fixtures/reconciliation.synthetic.json fixtures/reconciliation-request.json
+npm run check
+```
+
+本轮完整检查 133 项通过，新增 14 项离线测试。真实验收只证明这两个指定指标没有数值差异；变化、修订件和失败路径使用合成测试验证，尚无真实正式重述案例验收。未运行远程 CI，未将数值对账写作全部重述分析或 V1 完成。
