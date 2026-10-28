@@ -111,3 +111,10 @@
 - 新增 ADR 0012；贡献规则与架构文档说明静态约束的范围，未引入框架、目录层或依赖升级。
 - 验证：完整 npm run check 通过，76 项测试；五组模块的裸全局/限定全局反例、两种 SEC 纯模块 Node 导入、生产 void Promise 均被拒绝；临时反例已清除，git diff --check 通过。
 - 本轮仍仅本地提交，远程 CI 不代表已验证这些新规则。
+
+## 2026-10-28 · 17 本轮工程复核与 V0b 复验
+
+- 新增 ENGINEERING-REVIEW，列出实际位置、P2 优先级、影响、修复与证据；修复 ADR 索引的表格结构，同步进度/架构和验收状态，保留旧记录。
+- 原缓存离线复核与已提交 manifest 完全一致。本轮另外使用空 outputs/sec-revalidation-XYDWQs，真实首轮 cacheHit=false、3 次请求；两期 10-K hash/长度与原来源记录相同；离线校验成功，再跑 cacheHit=true、0 次请求。证据保存在忽略目录 acceptance.json，未记录联系邮箱。
+- 验证：完整 npm run check 为 76 项通过，lint 零 warning，依赖检查无循环/边界违规；git diff --check 通过。check 运行前后源码/文档及 Git 状态未变化。
+- 这些是本地验证。当前分支未推送、未创建 PR、未运行本轮远程 CI；后续财务指标、历史分片、模型与云能力继续列为计划。
