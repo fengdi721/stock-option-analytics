@@ -51,3 +51,10 @@
 - 验证：npm run check 通过（类型检查与 69 项测试）；git diff --check 通过。retrieval 定向 20 项通过，涵盖缓存损坏、重试、竞争锁及请求顺序变化。
 - 真实验收：以用户提供的 User-Agent 从 SEC 获取 Apple 2023/2024 原始 10-K，离线 sec-validate 成功；注入会失败的 fetch 重跑 cacheHit=true、网络调用计数 0。原始文件保留在忽略的 outputs/sec。
 - 限制：只支持 recent submissions；限速是单调用范围；不解析财务指标。可分享的 metadata 与重现记录在后续独立提交保存。
+
+## 2026-10-28 · 08 真实 Apple 来源记录
+
+- 单独保存两期固定 accession 请求与实际来源 manifest；新增 SEC-VALIDATION 记录下载、离线核验和零网络重跑的可复现命令。
+- 2023/2024 HTML 分别 1559035 / 1503891 字节，SHA-256 见 manifest；submissions 快照为 163917 字节。真实下载 UTC 时点为 21:09:29–21:09:30（Paris 22:09）。
+- 原始文件未提交，联系信息未写入仓库；合成 fixture 保持独立。进度与路线明确 V0b 限定验收已完成，财务指标/模型/云能力仍是计划。
+- 验证：前一步 npm run check 为 69 项通过；本步只新增 metadata/文档并核对与已验证本地缓存一致，git diff --check 通过。

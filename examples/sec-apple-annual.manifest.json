@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "submissions": {
+    "sourceUrl": "https://data.sec.gov/submissions/CIK0000320193.json",
+    "downloadedAt": "2026-10-28T21:09:29.460Z",
+    "sha256": "5891cf875f690e38f26ca628f7091184c9d73ca34ca7646b9cecd5013aeac4ab",
+    "byteLength": 163917
+  },
+  "filings": [
+    {
+      "cik": "0000320193",
+      "accession": "0000320193-23-000106",
+      "form": "10-K",
+      "periodEnd": "2023-09-30",
+      "filedAt": "2023-11-03",
+      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/320193/000032019323000106/aapl-20230930.htm",
+      "downloadedAt": "2026-10-28T21:09:29.829Z",
+      "sha256": "044dedf826458ad6b6fae7bb2d923c3b761f341b793bdf3b8087e3361bb8084e",
+      "byteLength": 1559035
+    },
+    {
+      "cik": "0000320193",
+      "accession": "0000320193-24-000123",
+      "form": "10-K",
+      "periodEnd": "2024-09-28",
+      "filedAt": "2024-11-01",
+      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/320193/000032019324000123/aapl-20240928.htm",
+      "downloadedAt": "2026-10-28T21:09:30.415Z",
+      "sha256": "7f2f83532b95c22fc81b7c2fcecfc5d5c6cc73dd8179d63e6a477c7e8140ee65",
+      "byteLength": 1503891
+    }
+  ]
+}
