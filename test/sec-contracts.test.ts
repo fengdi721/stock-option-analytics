@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseManifest, parseRequest, sha256, verifyBytes, filingUrl } from '../src/sec/contracts.ts';
+import { sha256, verifyBytes } from '../src/sec/integrity.ts';
+import { parseManifest, parseRequest, filingUrl } from '../src/sec/contracts.ts';
 
 // Synthetic metadata and bytes, never represented as downloaded SEC content.
 export function syntheticManifest() {
@@ -10,7 +11,7 @@ export function syntheticManifest() {
       form: '10-K', periodEnd: `${year}-06-30`, filedAt: `${year}-08-01`,
       sourceUrl: filingUrl('0000000001', `0000000001-${String(year).slice(2)}-000001`, 'annual.htm') })) };
 }
-test('manifest validates synthetic pair and SHA-256 against known vector', () => {
+void test('manifest validates synthetic pair and SHA-256 against known vector', () => {
   const m = parseManifest(syntheticManifest());
   assert.equal(m.filings[0].sha256, 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad');
   verifyBytes(m.filings[0], Buffer.from('abc'));
@@ -25,17 +26,17 @@ for (const [label, patch] of Object.entries({
   'bad hash': { sha256: 'abc' }, 'oversize': { byteLength: 25_000_001 },
   'foreign URL': { sourceUrl: 'https://evil.example/annual.htm' },
   'URL query': { sourceUrl: 'https://www.sec.gov/Archives/edgar/data/1/000000000123000001/annual.htm?x=1' }
-})) test(`manifest rejects ${label}`, () => {
+})) void test(`manifest rejects ${label}`, () => {
   const m = syntheticManifest(); Object.assign(m.filings[0], patch); assert.throws(() => parseManifest(m));
 });
-test('manifest rejects wrong pair, source, and schema', () => {
+void test('manifest rejects wrong pair, source, and schema', () => {
   for (const change of [(m: ReturnType<typeof syntheticManifest>) => { m.filings[1] = m.filings[0]; },
     (m: ReturnType<typeof syntheticManifest>) => { m.submissions.sourceUrl += '?x'; },
     (m: ReturnType<typeof syntheticManifest>) => { m.schemaVersion = 2; }]) {
     const m = syntheticManifest(); change(m); assert.throws(() => parseManifest(m));
   }
 });
-test('request requires two distinct pinned accessions', () => {
+void test('request requires two distinct pinned accessions', () => {
   const r = { cik: '0000000001', accessions: ['0000000001-23-000001', '0000000001-24-000001'] };
   assert.deepEqual(parseRequest(r), r);
   assert.throws(() => parseRequest({ ...r, accessions: [r.accessions[0], r.accessions[0]] }));

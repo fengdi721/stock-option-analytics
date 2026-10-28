@@ -43,3 +43,11 @@
 - 将通用运行时校验、精确金额、合约与场景解析从 payoff 中分隔；CSV 直接依赖这些明确接口。新增 ADR 0006。
 - 边界解析构造已验证的领域值；测试不再使用 any。补充继承字段与稀疏数组被拒绝的回归。
 - 验证：领域/CSV 定向测试 30 项通过；本地 typecheck 与定向 ESLint 通过，git diff --check 通过。ESLint 工具链尚在本轮工作区中准备，单独后续提交；本提交不宣称完整门禁已接入。
+
+## 2026-10-28 · 07 SEC 获取与离线缓存
+
+- 将先前下载草稿拆为明确模块，添加 canonical URL/MIME 检查、受限下载/重试、原子 manifest、锁与命中复核。CLI 入口分离命令执行，并新增 sec-fetch/sec-validate。
+- 新增 ADR 0007；hash 实现从纯 contracts 移到 integrity。测试继续使用合成 metadata/HTML，普通检查不访问 SEC。
+- 验证：npm run check 通过（类型检查与 69 项测试）；git diff --check 通过。retrieval 定向 20 项通过，涵盖缓存损坏、重试、竞争锁及请求顺序变化。
+- 真实验收：以用户提供的 User-Agent 从 SEC 获取 Apple 2023/2024 原始 10-K，离线 sec-validate 成功；注入会失败的 fetch 重跑 cacheHit=true、网络调用计数 0。原始文件保留在忽略的 outputs/sec。
+- 限制：只支持 recent submissions；限速是单调用范围；不解析财务指标。可分享的 metadata 与重现记录在后续独立提交保存。

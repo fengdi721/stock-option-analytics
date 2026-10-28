@@ -25,6 +25,24 @@ CSV 固定列：symbol,expiration,type,strike,bid,ask,quote_at,multiplier,source
 
 ## 重现和排错
 
-首次执行 npm ci 安装开发依赖，再执行 npm run check，再运行示例。文件不存在、JSON 无效或模式错误会返回非零状态和 error 消息。首版不读环境变量、不访问网络，也不需要券商或模型 API key。
+首次执行 npm ci 安装开发依赖，再执行 npm run check，再运行示例。文件不存在、JSON 无效或模式错误会返回非零状态和 error 消息。payoff 与 quote-payoff 不读环境变量、不访问网络；SEC 下载需要识别信息，但不需要券商或模型 API key。
 
 如需保存输出，先创建 outputs 目录，再把直接 node 命令的 stdout 重定向至其中；outputs 被 Git 忽略。不要将用户真实持仓替换到公开合成 fixtures 中。
+
+## SEC 两期财报
+
+固定请求示例：examples/sec-apple-annual.json（Apple 2023/2024 10-K，非合成标的）。首次联网需要由你在本地设置识别信息，以下 email 是占位符：
+
+```sh
+export SEC_USER_AGENT='YourApplication your-contact@example.com'
+node src/cli.ts sec-fetch examples/sec-apple-annual.json outputs/sec
+node src/cli.ts sec-validate outputs/sec/0000320193/0000320193-23-000106_0000320193-24-000123
+```
+
+sec-fetch 输出 cacheHit、directory、manifest。第二次执行会完全离线校验后返回 cacheHit=true，不需要 User-Agent；sec-validate 始终不联网。输入只含十位 cik 和恰好两个不同的 accessions。两期必须同公司、同 form（原始 10-K 或 10-Q）、不同 periodEnd；当前只在 submissions recent 中查找。
+
+缓存包含 manifest.json 与三个原始响应 blob（submissions JSON、两份 HTML，内容相同时按 hash 共用文件）。manifest 保存来源 URL、期间、filingDate、UTC 下载时间、字节长度和 SHA-256；不保存联系邮箱。filedAt 是日精度的申报日期，不是精确公开时间。
+
+每次命中复核所有文件；损坏时返回错误，不自动下载。要重新下载，保留或移动原缓存后使用新的 cache-root。遗留 .lock 仅在确认没有活动下载时移除。不要通过并行运行大量进程绕过 SEC 总请求限制；内置 250 ms 间隔只覆盖单次调用。429 与部分 5xx 做有限退避，长 Retry-After 要求稍后重试；403 不重试。
+
+原始文件在被 Git 忽略的 outputs 中，测试使用合成内容，不连接 SEC。下载内容只作为数据处理，不执行其中脚本，也不从该步骤推定全文再分发权。

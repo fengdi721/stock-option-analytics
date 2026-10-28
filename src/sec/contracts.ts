@@ -1,5 +1,3 @@
-import { createHash } from 'node:crypto';
-
 export type Filing = {
   cik: string; accession: string; form: '10-K' | '10-Q';
   periodEnd: string; filedAt: string; sourceUrl: string;
@@ -76,10 +74,4 @@ export function parseManifest(input: unknown): Manifest {
     throw new Error('require same company/form and distinct accessions/periods');
   if (s.sourceUrl !== submissionsUrl(a.cik)) throw new Error('incorrect submissions URL');
   return m as Manifest;
-}
-export function sha256(bytes: Uint8Array): string {
-  return createHash('sha256').update(bytes).digest('hex');
-}
-export function verifyBytes(meta: Artifact, bytes: Uint8Array): void {
-  if (bytes.byteLength !== meta.byteLength || sha256(bytes) !== meta.sha256) throw new Error('cache integrity mismatch');
 }
