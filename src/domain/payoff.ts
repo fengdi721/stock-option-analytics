@@ -1,64 +1,45 @@
-export type Leg = {
-  symbol: string; expiration: string; type: 'call' | 'put'; side: 'long' | 'short';
-  strike: string; premium: string; quantity: number; multiplier: number;
+import { boundedInteger, keys, object } from '../shared/validation.ts';
+import { amount, cents, money } from './money.ts';
+import { parseContract } from './option-contract.ts';
+import type { OptionContract } from './option-contract.ts';
+
+export type Leg = OptionContract & {
+  side: 'long' | 'short';
+  premium: string;
+  quantity: number;
   feesPerContract: string;
 };
 export type Scenario = { currency: 'USD'; legs: Leg[]; prices: string[] };
 
-export function object(value: unknown, name: string): Record<string, unknown> {
-  if (value === null || typeof value !== 'object' || Array.isArray(value))
-    throw new Error(`${name} must be an object`);
-  return value as Record<string, unknown>;
+function parseLeg(input: unknown): Leg {
+  const value = object(input, 'leg');
+  keys(value, ['symbol', 'expiration', 'type', 'side', 'strike', 'premium', 'quantity', 'multiplier', 'feesPerContract'], 'leg');
+  const contract = parseContract(value);
+  const { side, quantity } = value;
+  if (side !== 'long' && side !== 'short') throw new Error('side must be long or short');
+  boundedInteger(quantity, 'quantity', 1, 100000);
+  return { ...contract, side, quantity, premium: amount(value.premium, 'premium'),
+    feesPerContract: amount(value.feesPerContract, 'feesPerContract') };
 }
-export function keys(value: Record<string, unknown>, expected: string[], name: string): void {
-  if (Object.keys(value).some(key => !expected.includes(key)) || expected.some(key => !(key in value)))
-    throw new Error(`${name} must contain exactly: ${expected.join(', ')}`);
-}
-// All accepted USD amounts are decimal strings. BigInt preserves exact cents.
-export function cents(value: unknown, name = 'amount'): bigint {
-  if (typeof value !== 'string' || !/^(0|[1-9][0-9]{0,8})(\.[0-9]{1,2})?$/.test(value))
-    throw new Error(`${name} must be a nonnegative USD decimal string with at most 2 decimals (max 999999999.99)`);
-  const [whole, fraction = ''] = value.split('.');
-  return BigInt(whole) * 100n + BigInt(fraction.padEnd(2, '0'));
-}
-export function money(value: bigint): string {
-  const absolute = value < 0n ? -value : value;
-  return `${value < 0n ? '-' : ''}${absolute / 100n}.${String(absolute % 100n).padStart(2, '0')}`;
-}
-function integer(value: unknown, name: string): void {
-  if (!Number.isSafeInteger(value) || (value as number) < 1 || (value as number) > 100000)
-    throw new Error(`${name} must be an integer from 1 to 100000`);
-}
-export function validateContract(value: Record<string, unknown>): void {
-  if (typeof value.symbol !== 'string' || !/^[A-Z][A-Z0-9.-]{0,14}$/.test(value.symbol))
-    throw new Error('symbol must be an uppercase ticker');
-  const date = value.expiration;
-  if (typeof date !== 'string' || !/^20[0-9]{2}-[0-9]{2}-[0-9]{2}$/.test(date) ||
-      !Number.isFinite(Date.parse(date)) || new Date(date).toISOString().slice(0, 10) !== date)
-    throw new Error('expiration must be a valid YYYY-MM-DD date in 2000–2099');
-  if (!['call', 'put'].includes(value.type as string)) throw new Error('type must be call or put');
-  cents(value.strike, 'strike'); integer(value.multiplier, 'multiplier');
-}
+
 export function parseScenario(input: unknown): Scenario {
-  const v = object(input, 'scenario'); keys(v, ['currency', 'legs', 'prices'], 'scenario');
-  if (v.currency !== 'USD') throw new Error('currency must be USD');
-  if (!Array.isArray(v.legs) || v.legs.length < 1 || v.legs.length > 20)
+  const value = object(input, 'scenario');
+  keys(value, ['currency', 'legs', 'prices'], 'scenario');
+  if (value.currency !== 'USD') throw new Error('currency must be USD');
+  if (!Array.isArray(value.legs) || value.legs.length < 1 || value.legs.length > 20) {
     throw new Error('legs must contain 1–20 legs');
-  for (const raw of v.legs) {
-    const leg = object(raw, 'leg');
-    keys(leg, ['symbol','expiration','type','side','strike','premium','quantity','multiplier','feesPerContract'], 'leg');
-    validateContract(leg);
-    if (!['long', 'short'].includes(leg.side as string)) throw new Error('side must be long or short');
-    integer(leg.quantity, 'quantity'); cents(leg.premium, 'premium'); cents(leg.feesPerContract, 'feesPerContract');
   }
-  const legs = v.legs as Leg[];
-  if (legs.some(l => l.symbol !== legs[0].symbol || l.expiration !== legs[0].expiration))
+  const legs = Array.from(value.legs, (raw: unknown) => parseLeg(raw));
+  if (legs.some(leg => leg.symbol !== legs[0].symbol || leg.expiration !== legs[0].expiration)) {
     throw new Error('all legs must share symbol and expiration');
-  if (!Array.isArray(v.prices) || v.prices.length < 1 || v.prices.length > 10000)
+  }
+  if (!Array.isArray(value.prices) || value.prices.length < 1 || value.prices.length > 10000) {
     throw new Error('prices must contain 1–10000 scenarios');
-  v.prices.forEach(price => cents(price, 'scenario price'));
-  return v as Scenario;
+  }
+  const prices = Array.from(value.prices, (raw: unknown) => amount(raw, 'scenario price'));
+  return { currency: value.currency, legs, prices };
 }
+
 export function calculateExpiryPayoff(input: unknown) {
   const scenario = parseScenario(input);
   return {
