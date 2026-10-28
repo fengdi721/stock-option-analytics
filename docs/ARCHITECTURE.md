@@ -6,6 +6,7 @@
 src/shared/          无副作用的通用输入校验
 src/domain/          金额、合约、场景校验与纯到期损益
 src/adapters/        严格 CSV 报价输入，按显式时点与 bid/ask 生成场景
+src/financial/      年度请求契约、Company Facts 提取与纯比较计算
 src/sec/contracts   纯 SEC metadata/request/manifest 校验与来源 URL
 src/sec/submissions 从下载快照中精确选择 accession
 src/sec/content     纯 HTML 结构检查，不执行页面
@@ -32,3 +33,5 @@ fetch、sleep、clock 支持注入，以测试网络边界且不连接 SEC。磁
 SEC metadata 在 contracts 中独立验证，submissions 只返回有效日期、canonical URL 与两期关系均成立的值。retrieval 不再借用 submissions 的下载字段构造临时 manifest；只有真实下载结果进入完整 manifest。解析器构造独立边界值，避免调用方后续修改输入改变已验证的异步请求。
 
 pure-core 自动约束覆盖 domain、shared 和 SEC contracts/content/submissions；ESLint 补充检查常见全局 I/O 与被 void 丢弃的业务 Promise。规则是可执行的开发约束，不是运行时沙箱。响应字节上限由 contracts 的单个常量供 HTTP 和缓存复用。
+
+V1 财务数据流：Company Facts 快照 + 明确期间请求 → 精确选择 accession/期间/单位 → 带 JSON Pointer 的事实 → 整数差额/百分比计算。financial 仅依赖自身、shared 与 SEC 公共 contracts，纯模块 I/O 约束同时适用；不读取 SEC 缓存内部实现。数据提取与计算不依赖 CLI。Company Facts 快照与 V0b HTML 缓存独立，API hash 不冒充原始申报 hash。
