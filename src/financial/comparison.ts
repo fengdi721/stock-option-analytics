@@ -1,34 +1,8 @@
 import { extractAnnualFacts } from './companyfacts.ts';
 import { durationDays } from './contracts.ts';
-import type { AnnualFacts, ReportedFact } from './contracts.ts';
-
-type Calculation =
-  | { status: 'available'; value: string }
-  | { status: 'unavailable'; reason: 'missing_fact' | 'nonpositive_denominator' };
-
-/** Percentage rounded to two decimals, ties away from zero, using integer arithmetic. */
-function percentage(numerator: bigint, denominator: bigint): Calculation {
-  if (denominator <= 0n) {
-    return { status: 'unavailable', reason: 'nonpositive_denominator' };
-  }
-  const absolute = numerator < 0n ? -numerator : numerator;
-  const scaled = (absolute * 10_000n * 2n + denominator) / (denominator * 2n);
-  const sign = numerator < 0n && scaled !== 0n ? '-' : '';
-  return {
-    status: 'available',
-    value: `${sign}${scaled / 100n}.${String(scaled % 100n).padStart(2, '0')}`,
-  };
-}
-
-function change(previous: ReportedFact, current: ReportedFact) {
-  if (previous.status === 'missing' || current.status === 'missing') {
-    const missing: Calculation = { status: 'unavailable', reason: 'missing_fact' };
-    return { differenceUsd: missing, percentChange: missing };
-  }
-  const difference = BigInt(current.value) - BigInt(previous.value);
-  const differenceUsd: Calculation = { status: 'available', value: difference.toString() };
-  return { differenceUsd, percentChange: percentage(difference, BigInt(previous.value)) };
-}
+import type { AnnualFacts } from './contracts.ts';
+import { percentage, compareReportedFacts } from './calculations.ts';
+import type { Calculation } from './calculations.ts';
 
 function margin(facts: AnnualFacts): Calculation {
   if (facts.revenue.status === 'missing' || facts.netIncome.status === 'missing') {
@@ -56,8 +30,8 @@ export function compareAnnualFinancials(snapshot: unknown, request: unknown) {
       netMarginPercent: margin(facts),
     })),
     changes: {
-      revenue: change(previous.revenue, current.revenue),
-      netIncome: change(previous.netIncome, current.netIncome),
+      revenue: compareReportedFacts(previous.revenue, current.revenue),
+      netIncome: compareReportedFacts(previous.netIncome, current.netIncome),
     },
   };
 }

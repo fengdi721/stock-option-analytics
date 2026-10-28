@@ -154,3 +154,10 @@
 - 完整 npm run check 通过：133 项离线测试（新增 14 项），格式、lint 零 warning、依赖边界与类型检查通过。测试覆盖数值差额、相同/缺失、修订件、冲突/日期、严格请求与输入隔离、CLI 协议和缓存损坏；git diff --check 通过。
 - 真实 Apple 2023 年度在 2023/2024 两份指定 10-K 内的营收与净利润均 unchanged；逐条复核快照 JSON Pointer 和身份/期间，禁网执行 networkCalls=0。未下载新数据；结果留在本 worktree 的 outputs/reconciliation-apple.json。该真实案例不作为正式重述案例，详见 FINANCIAL-VALIDATION。
 - 本轮只做本地提交；未 push、未运行远程 CI、未启动模型或云资源。下一轮唯一优先任务：年度经营活动净现金流的显式指标契约与提取/比较来源验证；其余路线图保持未完成。
+
+## 2026-10-29 · 24 合并已验证工作与共享财务计算
+
+- 按用户明确授权推送 feat/financial-reconciliation（457a831），创建 PR #1：https://github.com/fengdi721/stock-option-analytics/pull/1。远程 Quality gate 成功，run 40788749643；随后 rebase 合并，main=ef01c166c7659a8574e9301a263ef0822d7bd408，保留八个聚焦提交。核对合并后的树与已验证本地树相同。
+- 从最新 origin/main 在现有隔离 worktree 创建 feat/operating-cash-flow，继续路线图中的显式指标与经营活动净现金流；原 checkout 的风格修改保留。当前推送/合并授权用于已完成工作，后续增量默认仍做本地提交。
+- 为新增指标复用现有精确算法，将百分比舍入、缺失/非正分母处理和差额计算移动到 financial/calculations；原年度比较的输出保持不变。未新增业务规则、依赖或重复实现；不为代码移动新增镜像测试。
+- 完整 npm run check 通过，133 项离线测试，git diff --check 通过。现金流提取与 CLI 尚待后续功能提交，不能将已合并 PR 的 CI 当作新分支检查结果。
