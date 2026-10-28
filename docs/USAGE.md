@@ -4,14 +4,14 @@
 
 参考 fixtures/call-spread.json。顶层字段必须为 currency、legs、prices。USD 金额一律使用非负十进制字符串，最多两位小数；没有隐式浮点/字符串转换。计算支持 1–20 腿、1–10000 个价格情景。
 
-| leg 字段 | 说明 |
-|---|---|
-| symbol | 大写标的符号，同一请求一致 |
-| expiration | 有效 YYYY-MM-DD，同一请求一致 |
-| type / side | call 或 put；long 或 short |
-| strike / premium | 每股行权价 / 已指定每股权利金 |
-| quantity / multiplier | 1–100000 的整数，数量 / 每份合约乘数 |
-| feesPerContract | 每份合约分摊的总费用，非负 USD 字符串；不再乘以 multiplier |
+| leg 字段              | 说明                                                       |
+| --------------------- | ---------------------------------------------------------- |
+| symbol                | 大写标的符号，同一请求一致                                 |
+| expiration            | 有效 YYYY-MM-DD，同一请求一致                              |
+| type / side           | call 或 put；long 或 short                                 |
+| strike / premium      | 每股行权价 / 已指定每股权利金                              |
+| quantity / multiplier | 1–100000 的整数，数量 / 每份合约乘数                       |
+| feesPerContract       | 每份合约分摊的总费用，非负 USD 字符串；不再乘以 multiplier |
 
 输入价格上限 999999999.99，累计结果不受此输入上限限制。场景允许历史日期，因为是可重复计算，并不是可交易性检查。输入不支持 NaN、Infinity、负数或 sub-cent 金额。
 

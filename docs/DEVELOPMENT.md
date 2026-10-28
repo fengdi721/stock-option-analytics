@@ -69,3 +69,12 @@
 
 - 独立应用 Prettier 到源码、测试、JSON 示例和 tsconfig；统一大括号、换行与排版，避免和业务变更混在一起。
 - 验证：本地完整 npm run check 通过（格式、零 warning lint、依赖边界、类型、70 项测试）；git diff --check 通过。工具配置与 lockfile 下一提交交付。
+
+## 2026-10-28 · 11 工程质量门禁
+
+- 接入 ESLint flat config + 类型感知推荐规则、独立 Prettier、eslint-config-prettier 与 dependency-cruiser；配置 EditorConfig 和忽略原始缓存。新增 ADR 0008，标明 ADR 0004 的工具链版本已被后继更新。
+- 根据实际 peerDependencies 将本地 TypeScript 从 7.0.2 调整为受支持的 6.0.3，精确锁定开发依赖；未强制安装或屏蔽版本警告。运行时仍无第三方依赖。
+- npm run check 统一格式、lint（零 warning）、依赖边界/循环、类型检查与测试；CI 原有 npm ci + check 自动采用同一门禁。贡献指南补充实际可执行的编码规则，架构图与当前进度同步。
+- 验证：npm ci --offline --no-audit 根据 lockfile 从本地缓存重装成功；随后完整 npm run check 通过，70 项测试全绿，19 个模块/32 条依赖无违规；git diff --check 通过。npm ls --depth=0 无 peer 错误。此前安装时 npm audit 报告 0 vulnerabilities，不等于全面安全审计。
+- 规则反例实测：临时构造纯领域导入 node:fs、依赖循环、不安全 JSON.parse 赋值、未处理 Promise，门禁分别拒绝；反例文件已清除。确认 curly=all 最终生效，避免被 prettier 冲突配置覆盖。
+- 实际完成 V0b 与工程基线的本地验收。仍未推送或获得远程 CI 结果；财务指标、检索、Bedrock 与云部署继续列为未实现计划。
