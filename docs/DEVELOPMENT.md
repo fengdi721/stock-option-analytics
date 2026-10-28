@@ -91,3 +91,9 @@
 - 处理首次运行的 Action Node20 弃用提示：checkout/setup-node 更新 v6 并锁定 GitHub 实际解析的完整 SHA，runner 固定 ubuntu-24.04，避免 ubuntu-latest 系统迁移。
 - 保留 main push 验证及 PR opened/synchronize/reopened 验证；PR 后续提交仍触发检查，功能分支无 PR 的 push 不触发。
 - 分支保护仍因私有仓库套餐返回 403 而未启用；未修改可见性、未订购套餐。PR 事件配置已部署，尚未创建测试 PR。
+
+## 2026-10-28 · 14 公开前检查与可见性
+
+- 按用户明确授权扫描全部 13 个历史提交、129 个 blob；所检查秘密模式零命中，核验缓存与联系邮箱未提交，Git 作者身份保留。扫描有识别范围限制。
+- GitHub API 实测 visibility=public、private=false。新增 ADR 0010，保留未选择开源许可证的状态。
+- 最新已验证远程 CI 为 4130a3c 的 Quality gate 成功。计划在本记录推送后启用 main 的 PR、指定 Actions 检查、最新分支、管理员约束与禁止强推/删除，并回读验证。

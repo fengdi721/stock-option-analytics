@@ -13,6 +13,8 @@
 
 | [0008](0008-quality-gates.md) | lint、格式与依赖质量门禁 | Accepted |
 
-| [0009](0009-pr-ci.md) | PR 与主分支 CI | Accepted；分支保护受套餐限制 |
+| [0009](0009-pr-ci.md) | PR 与主分支 CI | Accepted；公开与保护策略由 0010 补充 |
+
+| [0010](0010-public-repository.md) | 公开前检查与主分支保护 | Accepted |
 
 新增 ADR 使用四位连续编号，包含背景、决定、替代方案、代价和验证。Accepted 表示已采用技术决定，不代表对应产品能力已完成。

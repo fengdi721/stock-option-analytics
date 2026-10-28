@@ -10,7 +10,7 @@
 - [x] SEC metadata 契约、固定 accession、受限下载、hash/长度/metadata 离线校验。
 - [x] sec-fetch/sec-validate；Apple 2023/2024 两份 10-K 实际下载、离线校验及零网络重跑，见 [验收记录](SEC-VALIDATION.md)。
 - [x] 格式检查、ESLint（0 warnings）、依赖边界/循环检查、类型检查与 70 项离线测试通过。真实 SEC 文件保留在忽略的本地缓存；合成测试与真实 metadata 分开。
-- [x] CI 已推送；首次远程 Quality gate 通过，见开发记录。私有仓库分支保护受套餐限制。
+- [x] CI 已推送；首次远程 Quality gate 通过，见开发记录。仓库已按授权公开，保护策略见 ADR 0010。
 
 ## 后续计划（尚未实现）
 
