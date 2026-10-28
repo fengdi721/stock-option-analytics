@@ -6,6 +6,7 @@
 
 - [产品范围与里程碑](docs/ROADMAP.md)
 - [架构与目录](docs/ARCHITECTURE.md)
+- [完成状态与下一批任务](docs/PROGRESS.md)
 - [开发记录](docs/DEVELOPMENT.md)
 - [架构决策 ADR](docs/adr/README.md)
 - [贡献与验证规则](CONTRIBUTING.md)
@@ -17,7 +18,8 @@
 需要 Node.js 24；计算与测试没有运行时第三方依赖。
 
 ```sh
-npm test
+npm ci
+npm run check
 npm run demo
 node src/cli.ts payoff fixtures/call-spread.json
 node src/cli.ts quote-payoff fixtures/quotes.synthetic.csv fixtures/quote-request.json

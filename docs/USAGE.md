@@ -25,6 +25,6 @@ CSV 固定列：symbol,expiration,type,strike,bid,ask,quote_at,multiplier,source
 
 ## 重现和排错
 
-先执行 npm test，再运行示例。文件不存在、JSON 无效或模式错误会返回非零状态和 error 消息。首版不读环境变量、不访问网络，也不需要券商或模型 API key。
+首次执行 npm ci 安装开发依赖，再执行 npm run check，再运行示例。文件不存在、JSON 无效或模式错误会返回非零状态和 error 消息。首版不读环境变量、不访问网络，也不需要券商或模型 API key。
 
 如需保存输出，先创建 outputs 目录，再把直接 node 命令的 stdout 重定向至其中；outputs 被 Git 忽略。不要将用户真实持仓替换到公开合成 fixtures 中。

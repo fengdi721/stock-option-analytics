@@ -22,3 +22,10 @@
 - 补 ADR 0003 和输入文档。原始合成报价可复现直接持仓的手算结果。
 - 验证：npm test，32 项通过，包含真实子进程 CLI 成功、缺文件、非法 JSON、错误参数与 help。
 - 限制：快照不是历史数据集；无真实行情、SEC 下载或 Bedrock 调用。下一步完善静态检查和 CI。
+
+## 2026-10-28 · 04 工具链和交付检查
+
+- 安装项目本地开发依赖并锁定版本：TypeScript 7.0.2、@types/node 24.19.2。运行时仍无第三方依赖。
+- 添加 strict/noEmit 配置、npm run check 和只读权限 GitHub Actions，新增 ADR 0004。
+- 验证：npm run check 通过（类型检查与 32 项测试）；npm 安装报告当时 0 vulnerabilities；这不是全面安全审计。git diff --check 通过。
+- 文档明确区分 V0a 完成与财报/模型/云部署待办；当前只做本地提交，没有推送和远程 CI 结果。
